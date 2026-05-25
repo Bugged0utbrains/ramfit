@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ram Fit">
+<meta name="theme-color" content="#0a0a1a">
+<title>Ram Fit — Daily Tracker</title>
+<style>
+  :root {
+    --bg: #080810;
+    --bg2: #0d0d1f;
+    --glass: rgba(255,255,255,0.07);
+    --glass-border: rgba(255,255,255,0.13);
+    --glass-strong: rgba(255,255,255,0.11);
+    --blur: blur(24px);
+    --blue: #3b9eff;
+    --blue2: #5eb8ff;
+    --green: #34d978;
+    --green2: #4fffaa;
+    --orange: #ff8c42;
+    --red: #ff5f5f;
+    --yellow: #ffd700;
+    --purple: #b06eff;
+    --text: #f0f4ff;
+    --text2: rgba(240,244,255,0.55);
+    --text3: rgba(240,244,255,0.3);
+    --radius: 22px;
+    --radius-sm: 14px;
+    --safe-top: env(safe-area-inset-top, 44px);
+    --safe-bottom: env(safe-area-inset-bottom, 20px);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html, body {
+    height:100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', sans-serif;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* ── MESH BACKGROUND ── */
+  .mesh-bg {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(59,158,255,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(176,110,255,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 50% 50%, rgba(52,217,120,0.07) 0%, transparent 70%),
+      var(--bg);
+    pointer-events: none;
+  }
+
+  /* ── LAYOUT ── */
+  .app {
+    position: relative; z-index: 1;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 430px;
+    margin: 0 auto;
+  }
+
+  .screen {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: calc(var(--safe-top) + 56px) 16px calc(var(--safe-bottom) + 84px);
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* ── HEADER ── */
+  .header {
+    position: fixed;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    z-index: 100;
+    padding: calc(var(--safe-top) + 8px) 20px 12px;
+    background: rgba(8,8,16,0.7);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .header-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--blue2), var(--green2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header-date {
+    font-size: 13px;
+    color: var(--text2);
+    text-align: right;
+  }
+
+  /* ── TAB BAR ── */
+  .tabbar {
+    position: fixed;
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    z-index: 100;
+    padding: 10px 20px calc(var(--safe-bottom) + 4px);
+    background: rgba(8,8,16,0.75);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-around;
+  }
+  .tab-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    background: none; border: none; cursor: pointer;
+    color: var(--text3);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    transition: color 0.2s;
+  }
+  .tab-btn.active { color: var(--blue2); }
+  .tab-btn .tab-icon { font-size: 22px; }
+
+  /* ── GLASS CARD ── */
+  .card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    padding: 20px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+    animation: cardIn 0.4s ease both;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .card:nth-child(2) { animation-delay: 0.05s; }
+  .card:nth-child(3) { animation-delay: 0.1s; }
+  .card:nth-child(4) { animation-delay: 0.15s; }
+  .card:nth-child(5) { animation-delay: 0.2s; }
+
+  /* ── TODAY HERO ── */
+  .hero-card {
+    background: linear-gradient(135deg, rgba(59,158,255,0.2), rgba(52,217,120,0.15));
+    border-color: rgba(94,184,255,0.3);
+    padding: 24px;
+  }
+  .hero-label { font-size: 13px; color: var(--text2); margin-bottom: 4px; font-weight: 500; }
+  .hero-weight {
+    font-size: 64px;
+    font-weight: 700;
+    letter-spacing: -2px;
+    line-height: 1;
+    background: linear-gradient(135deg, #fff, var(--blue2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-unit { font-size: 22px; font-weight: 400; }
+  .hero-sub { font-size: 14px; color: var(--text2); margin-top: 8px; }
+  .hero-progress-row { display: flex; gap: 16px; margin-top: 20px; }
+  .hero-stat { flex: 1; }
+  .hero-stat-val { font-size: 22px; font-weight: 700; color: var(--green2); }
+  .hero-stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-track {
+    width: 100%; height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    margin-top: 16px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(to right, var(--blue), var(--green2));
+    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .progress-label { font-size: 12px; color: var(--text2); margin-top: 6px; display: flex; justify-content: space-between; }
+
+  /* ── QUICK LOG ── */
+  .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .quick-item {
+    background: var(--glass-strong);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    padding: 16px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+  .quick-item.done {
+    background: rgba(52,217,120,0.12);
+    border-color: rgba(52,217,120,0.3);
+  }
+  .quick-item:active { transform: scale(0.96); }
+  .quick-icon { font-size: 24px; }
+  .quick-label { font-size: 13px; font-weight: 600; color: var(--text); }
+  .quick-sub { font-size: 11px; color: var(--text2); }
+  .check-badge {
+    position: absolute; top: 10px; right: 10px;
+    width: 20px; height: 20px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: #000;
+    font-weight: 700;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .quick-item.done .check-badge { opacity: 1; transform: scale(1); }
+
+  /* ── WATER TRACKER ── */
+  .water-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .water-cup {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(56,189,248,0.3);
+    background: rgba(56,189,248,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .water-cup.filled {
+    background: rgba(56,189,248,0.25);
+    border-color: rgba(56,189,248,0.6);
+  }
+  .water-cup:active { transform: scale(0.88); }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .section-sub { font-size: 13px; color: var(--text2); margin-bottom: 14px; }
+
+  /* ── INPUT ── */
+  .input-row { margin-bottom: 14px; }
+  .input-label { font-size: 13px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+  .glass-input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-size: 16px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .glass-input:focus { border-color: rgba(94,184,255,0.5); }
+  .glass-input::placeholder { color: var(--text3); }
+  textarea.glass-input { resize: none; min-height: 80px; }
+
+  /* ── BUTTON ── */
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: -0.2px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--blue), #5eb8ff);
+    color: #000;
+  }
+  .btn-success {
+    background: linear-gradient(135deg, var(--green), var(--green2));
+    color: #000;
+  }
+  .btn-ghost {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: var(--text);
+  }
+
+  /* ── MOOD SELECTOR ── */
+  .mood-row { display: flex; gap: 10px; }
+  .mood-btn {
+    flex: 1; padding: 14px 8px;
+    background: var(--glass);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-size: 11px; color: var(--text2);
+  }
+  .mood-btn .emoji { font-size: 24px; }
+  .mood-btn.selected { border-color: var(--blue2); background: rgba(94,184,255,0.12); color: var(--blue2); }
+  .mood-btn:active { transform: scale(0.95); }
+
+  /* ── CHART ── */
+  .chart-wrap { position: relative; height: 160px; margin: 8px 0; }
+  canvas.chart { width: 100% !important; height: 160px !important; }
+
+  /* ── LOG LIST ── */
+  .log-item {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 10px;
+    animation: cardIn 0.3s ease both;
+  }
+  .log-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .log-date { font-size: 13px; font-weight: 600; color: var(--blue2); }
+  .log-weight-badge {
+    background: rgba(52,217,120,0.15);
+    border: 1px solid rgba(52,217,120,0.3);
+    color: var(--green2);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-variant-numeric: tabular-nums;
+  }
+  .log-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .log-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text2);
+  }
+  .log-pill.green { background: rgba(52,217,120,0.1); border-color: rgba(52,217,120,0.25); color: var(--green2); }
+  .log-pill.blue { background: rgba(94,184,255,0.1); border-color: rgba(94,184,255,0.25); color: var(--blue2); }
+  .log-note { font-size: 13px; color: var(--text2); margin-top: 8px; line-height: 1.5; font-style: italic; }
+
+  /* ── MOTIVATIONAL QUOTE ── */
+  .quote-card {
+    background: linear-gradient(135deg, rgba(176,110,255,0.15), rgba(59,158,255,0.12));
+    border-color: rgba(176,110,255,0.25);
+    text-align: center;
+    padding: 24px 20px;
+  }
+  .quote-text { font-size: 16px; font-weight: 500; line-height: 1.6; color: var(--text); font-style: italic; margin-bottom: 8px; }
+  .quote-icon { font-size: 32px; margin-bottom: 12px; }
+
+  /* ── STATS GRID ── */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stat-card-icon { font-size: 20px; margin-bottom: 4px; }
+  .stat-card-val { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+  .stat-card-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-blue { color: var(--blue2); }
+  .stat-green { color: var(--green2); }
+  .stat-orange { color: var(--orange); }
+  .stat-purple { color: var(--purple); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--text2); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-text { font-size: 15px; }
+
+  /* ── BADGE ── */
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 12px; color: var(--text2);
+  }
+  .badge.earned { background: rgba(255,215,0,0.1); border-color: rgba(255,215,0,0.3); color: var(--yellow); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: rgba(52,217,120,0.9);
+    color: #000;
+    padding: 12px 24px;
+    border-radius: 20px;
+    font-size: 14px; font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999;
+    transition: all 0.3s;
+    backdrop-filter: var(--blur);
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .divider { height: 1px; background: var(--glass-border); margin: 4px 0 16px; }
+  .mt8 { margin-top: 8px; }
+  .mt16 { margin-top: 16px; }
+
+  /* ── STREAK FIRE ── */
+  .streak-display {
+    display: flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, rgba(255,140,66,0.15), rgba(255,95,95,0.1));
+    border: 1px solid rgba(255,140,66,0.25);
+    border-radius: 14px; padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .streak-fire { font-size: 32px; }
+  .streak-val { font-size: 28px; font-weight: 800; color: var(--orange); letter-spacing: -1px; }
+  .streak-label { font-size: 13px; color: var(--text2); }
+
+  /* hidden screens */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* weight input big */
+  .big-input {
+    font-size: 48px; font-weight: 700; letter-spacing: -1px;
+    width: 100%; background: none; border: none;
+    color: var(--text); outline: none; text-align: center;
+    font-family: inherit;
+    -webkit-appearance: none;
+  }
+  .big-input-wrap {
+    display: flex; align-items: baseline; justify-content: center; gap: 8px;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 18px; padding: 16px 20px; margin-bottom: 16px;
+  }
+  .big-unit { font-size: 22px; color: var(--text2); }
+</style>
+</head>
+<body>
+
+<div class="mesh-bg"></div>
+<div class="toast" id="toast"></div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-title">Ram Fit 🏃</div>
+    <div class="header-date" id="headerDate"></div>
+  </div>
+
+  <!-- ── SCREEN: HOME ── -->
+  <div class="screen active" id="screen-home">
+
+    <div class="card hero-card">
+      <div class="hero-label">Current Weight</div>
+      <div class="hero-weight"><span id="currentWeightDisplay">114.2</span><span class="hero-unit"> kg</span></div>
+      <div class="hero-sub">Target: 85 kg · <span id="kgLeft">29.2</span> kg to go 💪</div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="progress-label">
+        <span>114.2 kg</span>
+        <span id="progressPct">0%</span>
+        <span>85 kg</span>
+      </div>
+      <div class="hero-progress-row">
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="totalLost">0</div>
+          <div class="hero-stat-label">kg lost total</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="daysLogged">0</div>
+          <div class="hero-stat-label">days logged</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" id="homeStreak">0🔥</div>
+          <div class="hero-stat-label">day streak</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card quote-card" id="quoteCard">
+      <div class="quote-icon">💬</div>
+      <div class="quote-text" id="quoteText">Loading your daily motivation...</div>
+    </div>
+
+    <div class="section-label">Today's Checklist</div>
+
+    <div class="quick-grid">
+      <div class="quick-item" id="qi-workout" onclick="toggleQuick('workout')">
+        <div class="check-badge">✓</div>
+        <div class="quick-icon">💪</div>
+        <div class="quick-label">Workout</div>
+        <div class="quick-sub">20 min circuit</div>
+      </div>
+      <div class="quick-item" id="qi-walk" onclick="toggleQuick('walk')">
+        <div class="check-badge">✓</div>
+        <div class="quick-icon">🚶</div>
+        <div class="quick-label">Evening Walk</div>
+        <div class="quick-sub">30 min target</div>
+      </div>
+      <div class="quick-item" id="qi-badminton" onclick="toggleQuick('badminton')">
+        <div class="check-badge">✓</div>
+        <div class="quick-icon">🏸</div>
+        <div class="quick-label">Badminton</div>
+        <div class="quick-sub">Weekend session</div>
+      </div>
+      <div class="quick-item" id="qi-diet" onclick="toggleQuick('diet')">
+        <div class="check-badge">✓</div>
+        <div class="quick-icon">🥗</div>
+        <div class="quick-label">Diet on Track</div>
+        <div class="quick-sub">No junk today</div>
+      </div>
+      <div class="quick-item" id="qi-nosnak" onclick="toggleQuick('nosnak')">
+        <div class="check-badge">✓</div>
+        <div class="quick-icon">🌙</div>
+        <div class="quick-label">No Late Eating</div>
+        <div class="quick-sub">Cutoff 8:30 PM</div>
+      </div>
+      <div class="quick-item" id="qi-mba" onclick="toggleQuick('mba')">
+        <div class="check-badge">✓</div>
+        <div class="quick-icon">📚</div>
+        <div class="quick-label">MBA Study</div>
+        <div class="quick-sub">2 hr session</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:4px;">
+      <div class="section-label" style="font-size:16px;margin-bottom:12px;">💧 Water Today</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Tap each cup as you drink (each = 500ml)</div>
+      <div class="water-row" id="waterRow"></div>
+      <div style="margin-top:10px;font-size:14px;color:var(--blue2);font-weight:600;" id="waterLabel">0 / 3500 ml</div>
+    </div>
+
+  </div>
+
+  <!-- ── SCREEN: LOG ── -->
+  <div class="screen" id="screen-log">
+
+    <div class="section-label">Log Today</div>
+    <div class="section-sub" id="logDateLabel">Tap to save your daily entry</div>
+
+    <div class="card">
+      <div class="input-label">⚖️ Today's Weight (kg)</div>
+      <div class="big-input-wrap">
+        <input class="big-input" id="logWeight" type="number" step="0.1" min="60" max="200" placeholder="0.0">
+        <div class="big-unit">kg</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="input-label">😊 How do you feel today?</div>
+      <div class="mood-row mt8">
+        <div class="mood-btn" onclick="selectMood('terrible')" id="mood-terrible"><span class="emoji">😩</span>Terrible</div>
+        <div class="mood-btn" onclick="selectMood('okay')" id="mood-okay"><span class="emoji">😐</span>Okay</div>
+        <div class="mood-btn" onclick="selectMood('good')" id="mood-good"><span class="emoji">😊</span>Good</div>
+        <div class="mood-btn" onclick="selectMood('great')" id="mood-great"><span class="emoji">🔥</span>Great!</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="input-label">🍽️ Meals Today</div>
+      <div class="input-row mt8">
+        <div class="input-label">Breakfast</div>
+        <input class="glass-input" id="logBreakfast" type="text" placeholder="e.g. Oats + 2 boiled eggs">
+      </div>
+      <div class="input-row">
+        <div class="input-label">Lunch</div>
+        <input class="glass-input" id="logLunch" type="text" placeholder="e.g. 2 rotis + dal + sabzi">
+      </div>
+      <div class="input-row">
+        <div class="input-label">Dinner</div>
+        <input class="glass-input" id="logDinner" type="text" placeholder="e.g. Chicken curry + salad">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="input-label">📝 Notes / Reflection</div>
+      <textarea class="glass-input mt8" id="logNotes" placeholder="How did today go? Any challenges? Wins to celebrate?"></textarea>
+    </div>
+
+    <button class="btn btn-success" onclick="saveLog()">✅ Save Today's Log</button>
+    <div style="height:8px;"></div>
+
+  </div>
+
+  <!-- ── SCREEN: PROGRESS ── -->
+  <div class="screen" id="screen-progress">
+
+    <div class="section-label">Progress</div>
+
+    <div class="streak-display">
+      <div class="streak-fire">🔥</div>
+      <div>
+        <div class="streak-val" id="streakVal">0</div>
+        <div class="streak-label">Day streak — keep going!</div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-icon">📉</div>
+        <div class="stat-card-val stat-green" id="statLost">0</div>
+        <div class="stat-card-label">kg lost total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">🎯</div>
+        <div class="stat-card-val stat-blue" id="statLeft">29.2</div>
+        <div class="stat-card-label">kg to go</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">📅</div>
+        <div class="stat-card-val stat-orange" id="statDays">0</div>
+        <div class="stat-card-label">days logged</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon">⚡</div>
+        <div class="stat-card-val stat-purple" id="statPace">—</div>
+        <div class="stat-card-label">avg kg/week</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px 16px 12px;">
+      <div style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text2);">⚖️ Weight Trend</div>
+      <div class="chart-wrap">
+        <canvas id="weightChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card" style="padding:16px;">
+      <div style="font-size:14px;font-weight:600;margin-bottom:12px;color:var(--text2);">🏆 Badges</div>
+      <div class="badge-row" id="badgeRow">
+        <div class="badge">🔒 First Log</div>
+        <div class="badge">🔒 7-Day Streak</div>
+        <div class="badge">🔒 5 kg Lost</div>
+        <div class="badge">🔒 10 kg Lost</div>
+        <div class="badge">🔒 Under 110</div>
+        <div class="badge">🔒 Under 100</div>
+        <div class="badge">🔒 Under 90</div>
+        <div class="badge">🔒 Goal!</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── SCREEN: HISTORY ── -->
+  <div class="screen" id="screen-history">
+    <div class="section-label">History</div>
+    <div id="historyList"></div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tabbar">
+    <button class="tab-btn active" onclick="switchTab('home')" id="tab-home">
+      <span class="tab-icon">🏠</span>Home
+    </button>
+    <button class="tab-btn" onclick="switchTab('log')" id="tab-log">
+      <span class="tab-icon">✍️</span>Log
+    </button>
+    <button class="tab-btn" onclick="switchTab('progress')" id="tab-progress">
+      <span class="tab-icon">📈</span>Progress
+    </button>
+    <button class="tab-btn" onclick="switchTab('history')" id="tab-history">
+      <span class="tab-icon">📋</span>History
+    </button>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+
+const START_WEIGHT = 114.2;
+const TARGET_WEIGHT = 85.0;
+
+const QUOTES = [
+  "The body achieves what the mind believes. One day, one choice at a time. 💪",
+  "Every walk you take, every meal you choose right — that's you voting for 85kg Ram. 🎯",
+  "You have an MBA, a full-time job, a long commute, and you're STILL doing this. That's strength. 🔥",
+  "December Ram is watching. Make him proud right now. ⚡",
+  "Badminton is joy. Find what you love and it never feels like a sacrifice. 🏸",
+  "The belly fat didn't come in one day. It won't go in one day. But every day you're 0.1kg closer to free. 📉",
+  "Consistency beats intensity. Every. Single. Time. 🏆",
+  "The commute is study time. The evenings are workout time. You've already built a perfect system. 🚀",
+  "Your visceral fat index is 13 right now. Walks alone will bring it down. Keep walking. 🚶",
+  "Small wins compound. Every roti swap, every glass of water, every evening walk — it all adds up. ✨",
+  "You're not losing weight. You're gaining your life back. 💚",
+  "29kg seems huge. But 0.8kg per week? That's one good week away. Focus there. 🎯",
+];
+
+function getData() {
+  try { return JSON.parse(localStorage.getItem('ramfit_data') || '{}'); } catch { return {}; }
+}
+function saveData(d) { localStorage.setItem('ramfit_data', JSON.stringify(d)); }
+function getTodayKey() { return new Date().toISOString().slice(0,10); }
+
+function getToday() {
+  const d = getData();
+  const k = getTodayKey();
+  if (!d[k]) d[k] = { checks: {}, water: 0, weight: null, mood: null, meals: {}, notes: '' };
+  return { data: d, today: d[k], key: k };
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+
+function init() {
+  updateHeaderDate();
+  setQuote();
+  buildWaterCups();
+  loadHomeState();
+  updateProgress();
+}
+
+function updateHeaderDate() {
+  const now = new Date();
+  const opts = { weekday:'short', month:'short', day:'numeric' };
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('en-IN', opts);
+}
+
+function setQuote() {
+  const q = QUOTES[new Date().getDate() % QUOTES.length];
+  document.getElementById('quoteText').textContent = q;
+}
+
+function buildWaterCups() {
+  const row = document.getElementById('waterRow');
+  row.innerHTML = '';
+  const { today } = getToday();
+  const cups = 7;
+  for (let i = 0; i < cups; i++) {
+    const cup = document.createElement('div');
+    cup.className = 'water-cup' + (i < today.water ? ' filled' : '');
+    cup.innerHTML = '💧';
+    cup.onclick = () => toggleWater(i);
+    cup.id = 'cup-' + i;
+    row.appendChild(cup);
+  }
+  updateWaterLabel(today.water);
+}
+
+function toggleWater(idx) {
+  const { data, today, key } = getToday();
+  today.water = (today.water === idx + 1) ? idx : idx + 1;
+  saveData(data);
+  buildWaterCups();
+  showToast(today.water > 0 ? `💧 ${today.water * 500}ml hydrated!` : 'Water reset');
+}
+
+function updateWaterLabel(cups) {
+  const ml = cups * 500;
+  document.getElementById('waterLabel').textContent = `${ml} / 3500 ml`;
+}
+
+function loadHomeState() {
+  const { today } = getToday();
+  const checks = ['workout','walk','badminton','diet','nosnak','mba'];
+  checks.forEach(c => {
+    const el = document.getElementById('qi-' + c);
+    if (el) el.classList.toggle('done', !!today.checks[c]);
+  });
+}
+
+function toggleQuick(key) {
+  const { data, today } = getToday();
+  today.checks[key] = !today.checks[key];
+  saveData(data);
+  const el = document.getElementById('qi-' + key);
+  el.classList.toggle('done', today.checks[key]);
+  const labels = { workout:'Workout done 💪', walk:'Walk done 🚶', badminton:'Badminton done 🏸', diet:'Diet on track 🥗', nosnak:'No late eating ✅', mba:'MBA done 📚' };
+  showToast(today.checks[key] ? labels[key] : 'Unchecked');
+}
+
+function updateProgress() {
+  const d = getData();
+  const keys = Object.keys(d).sort();
+  const logs = keys.map(k => d[k]).filter(l => l.weight);
+
+  const currentW = logs.length ? logs[logs.length-1].weight : START_WEIGHT;
+  const lost = Math.max(0, START_WEIGHT - currentW).toFixed(1);
+  const left = Math.max(0, currentW - TARGET_WEIGHT).toFixed(1);
+  const pct = Math.min(100, ((START_WEIGHT - currentW) / (START_WEIGHT - TARGET_WEIGHT)) * 100);
+
+  document.getElementById('currentWeightDisplay').textContent = currentW;
+  document.getElementById('kgLeft').textContent = left;
+  document.getElementById('totalLost').textContent = lost;
+  document.getElementById('daysLogged').textContent = keys.length;
+  document.getElementById('progressFill').style.width = Math.max(0,pct) + '%';
+  document.getElementById('progressPct').textContent = Math.max(0,pct).toFixed(1) + '%';
+
+  const streak = calcStreak(keys);
+  document.getElementById('homeStreak').textContent = streak + '🔥';
+}
+
+function calcStreak(keys) {
+  if (!keys.length) return 0;
+  const sorted = keys.slice().sort().reverse();
+  const today = getTodayKey();
+  let streak = 0;
+  let check = today;
+  for (let k of sorted) {
+    if (k === check) { streak++; const d = new Date(check); d.setDate(d.getDate()-1); check = d.toISOString().slice(0,10); }
+    else if (k < check) break;
+  }
+  return streak;
+}
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+
+function switchTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'log') initLogScreen();
+  if (tab === 'progress') initProgressScreen();
+  if (tab === 'history') initHistory();
+}
+
+// ══════════════════════════════════════════
+// LOG SCREEN
+// ══════════════════════════════════════════
+
+let selectedMood = null;
+
+function initLogScreen() {
+  const { today } = getToday();
+  const now = new Date();
+  document.getElementById('logDateLabel').textContent = now.toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  if (today.weight) document.getElementById('logWeight').value = today.weight;
+  if (today.mood) selectMood(today.mood, false);
+  if (today.meals) {
+    if (today.meals.breakfast) document.getElementById('logBreakfast').value = today.meals.breakfast;
+    if (today.meals.lunch) document.getElementById('logLunch').value = today.meals.lunch;
+    if (today.meals.dinner) document.getElementById('logDinner').value = today.meals.dinner;
+  }
+  if (today.notes) document.getElementById('logNotes').value = today.notes;
+}
+
+function selectMood(mood, save=true) {
+  selectedMood = mood;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  const el = document.getElementById('mood-' + mood);
+  if (el) el.classList.add('selected');
+}
+
+function saveLog() {
+  const w = parseFloat(document.getElementById('logWeight').value);
+  if (!w || w < 50 || w > 200) { showToast('⚠️ Enter a valid weight (50–200 kg)'); return; }
+
+  const { data, today, key } = getToday();
+  today.weight = w;
+  today.mood = selectedMood;
+  today.meals = {
+    breakfast: document.getElementById('logBreakfast').value,
+    lunch: document.getElementById('logLunch').value,
+    dinner: document.getElementById('logDinner').value,
+  };
+  today.notes = document.getElementById('logNotes').value;
+  today.savedAt = new Date().toISOString();
+  data[key] = today;
+  saveData(data);
+
+  updateProgress();
+  showToast('✅ Log saved! Keep going Ram! 💪');
+  setTimeout(() => switchTab('home'), 1200);
+}
+
+// ══════════════════════════════════════════
+// PROGRESS SCREEN
+// ══════════════════════════════════════════
+
+function initProgressScreen() {
+  const d = getData();
+  const keys = Object.keys(d).sort();
+  const logs = keys.map(k => ({ k, w: d[k].weight })).filter(l => l.w);
+
+  const streak = calcStreak(keys);
+  document.getElementById('streakVal').textContent = streak;
+  document.getElementById('statDays').textContent = keys.length;
+
+  const currentW = logs.length ? logs[logs.length-1].w : START_WEIGHT;
+  const lost = Math.max(0, START_WEIGHT - currentW).toFixed(1);
+  const left = Math.max(0, currentW - TARGET_WEIGHT).toFixed(1);
+  document.getElementById('statLost').textContent = lost + ' kg';
+  document.getElementById('statLeft').textContent = left + ' kg';
+
+  if (logs.length >= 2) {
+    const weeks = (logs.length - 1) / 7;
+    const rate = weeks > 0 ? ((logs[0].w - currentW) / Math.max(weeks, 0.1)).toFixed(2) : '—';
+    document.getElementById('statPace').textContent = rate > 0 ? rate + ' kg' : '—';
+  }
+
+  drawChart(logs);
+  updateBadges(currentW, streak, keys.length);
+}
+
+function drawChart(logs) {
+  const canvas = document.getElementById('weightChart');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio || 600;
+  canvas.height = 160 * window.devicePixelRatio;
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+  const W = canvas.offsetWidth || 300, H = 160;
+  ctx.clearRect(0, 0, W, H);
+
+  if (logs.length < 1) {
+    ctx.fillStyle = 'rgba(240,244,255,0.3)';
+    ctx.font = '14px -apple-system';
+    ctx.textAlign = 'center';
+    ctx.fillText('Log your weight to see the trend', W/2, H/2);
+    return;
+  }
+
+  const weights = logs.map(l => l.w);
+  const minW = Math.min(...weights, TARGET_WEIGHT) - 2;
+  const maxW = Math.max(...weights, START_WEIGHT) + 2;
+  const pad = { top: 16, bottom: 30, left: 8, right: 8 };
+
+  const xScale = i => pad.left + (i / Math.max(logs.length - 1, 1)) * (W - pad.left - pad.right);
+  const yScale = w => pad.top + (1 - (w - minW) / (maxW - minW)) * (H - pad.top - pad.bottom);
+
+  // Target line
+  ctx.strokeStyle = 'rgba(52,217,120,0.3)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(pad.left, yScale(TARGET_WEIGHT));
+  ctx.lineTo(W - pad.right, yScale(TARGET_WEIGHT));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  if (logs.length >= 2) {
+    // Gradient fill
+    const grad = ctx.createLinearGradient(0, pad.top, 0, H - pad.bottom);
+    grad.addColorStop(0, 'rgba(94,184,255,0.3)');
+    grad.addColorStop(1, 'rgba(94,184,255,0)');
+    ctx.beginPath();
+    ctx.moveTo(xScale(0), yScale(weights[0]));
+    weights.forEach((w, i) => ctx.lineTo(xScale(i), yScale(w)));
+    ctx.lineTo(xScale(weights.length - 1), H - pad.bottom);
+    ctx.lineTo(xScale(0), H - pad.bottom);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.strokeStyle = '#5eb8ff';
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(xScale(0), yScale(weights[0]));
+    weights.forEach((w, i) => ctx.lineTo(xScale(i), yScale(w)));
+    ctx.stroke();
+  }
+
+  // Dots
+  weights.forEach((w, i) => {
+    ctx.beginPath();
+    ctx.arc(xScale(i), yScale(w), 4, 0, Math.PI * 2);
+    ctx.fillStyle = i === weights.length - 1 ? '#5eb8ff' : 'rgba(94,184,255,0.5)';
+    ctx.fill();
+  });
+
+  // Labels
+  ctx.fillStyle = 'rgba(240,244,255,0.4)';
+  ctx.font = '10px -apple-system';
+  ctx.textAlign = 'center';
+  if (logs.length > 0) {
+    ctx.fillText(weights[weights.length-1] + ' kg', xScale(weights.length-1), yScale(weights[weights.length-1]) - 8);
+  }
+  ctx.fillStyle = 'rgba(52,217,120,0.5)';
+  ctx.fillText('Target 85', W - pad.right - 20, yScale(TARGET_WEIGHT) - 4);
+}
+
+function updateBadges(currentW, streak, days) {
+  const badgesData = [
+    { id: 0, label: '🥇 First Log', earned: days >= 1 },
+    { id: 1, label: '🔥 7-Day Streak', earned: streak >= 7 },
+    { id: 2, label: '💪 5 kg Lost', earned: currentW <= START_WEIGHT - 5 },
+    { id: 3, label: '🏆 10 kg Lost', earned: currentW <= START_WEIGHT - 10 },
+    { id: 4, label: '⚡ Under 110', earned: currentW < 110 },
+    { id: 5, label: '🎯 Under 100', earned: currentW < 100 },
+    { id: 6, label: '✨ Under 90', earned: currentW < 90 },
+    { id: 7, label: '🎉 Goal Reached!', earned: currentW <= 85 },
+  ];
+  const row = document.getElementById('badgeRow');
+  row.innerHTML = '';
+  badgesData.forEach(b => {
+    const el = document.createElement('div');
+    el.className = 'badge' + (b.earned ? ' earned' : '');
+    el.textContent = b.earned ? b.label : '🔒 ' + b.label.split(' ').slice(1).join(' ');
+    row.appendChild(el);
+  });
+}
+
+// ══════════════════════════════════════════
+// HISTORY SCREEN
+// ══════════════════════════════════════════
+
+function initHistory() {
+  const d = getData();
+  const keys = Object.keys(d).sort().reverse();
+  const list = document.getElementById('historyList');
+  list.innerHTML = '';
+
+  if (!keys.length) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No logs yet.<br>Go to Log tab to start!</div></div>';
+    return;
+  }
+
+  keys.forEach(k => {
+    const entry = d[k];
+    const dateStr = new Date(k + 'T00:00:00').toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' });
+    const moodEmoji = { terrible:'😩', okay:'😐', good:'😊', great:'🔥' };
+
+    const checks = entry.checks || {};
+    const checkList = Object.keys(checks).filter(c => checks[c]);
+
+    const item = document.createElement('div');
+    item.className = 'log-item';
+    item.innerHTML = `
+      <div class="log-item-header">
+        <span class="log-date">${dateStr}</span>
+        ${entry.weight ? `<span class="log-weight-badge">${entry.weight} kg</span>` : '<span class="log-weight-badge" style="color:var(--text3);border-color:rgba(255,255,255,0.1)">No weight</span>'}
+      </div>
+      <div class="log-pills">
+        ${entry.mood ? `<span class="log-pill blue">${moodEmoji[entry.mood] || ''} ${entry.mood}</span>` : ''}
+        ${(entry.water||0) > 0 ? `<span class="log-pill blue">💧 ${entry.water * 500}ml</span>` : ''}
+        ${checkList.map(c => `<span class="log-pill green">${c}</span>`).join('')}
+      </div>
+      ${entry.meals && (entry.meals.breakfast || entry.meals.lunch || entry.meals.dinner) ? `
+        <div class="log-pills" style="margin-top:6px;">
+          ${entry.meals.breakfast ? `<span class="log-pill">🌅 ${entry.meals.breakfast}</span>` : ''}
+          ${entry.meals.lunch ? `<span class="log-pill">☀️ ${entry.meals.lunch}</span>` : ''}
+          ${entry.meals.dinner ? `<span class="log-pill">🌙 ${entry.meals.dinner}</span>` : ''}
+        </div>
+      ` : ''}
+      ${entry.notes ? `<div class="log-note">"${entry.notes}"</div>` : ''}
+    `;
+    list.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ══════════════════════════════════════════
+// START
+// ══════════════════════════════════════════
+
+init();
+</script>
+</body>
+</html>
