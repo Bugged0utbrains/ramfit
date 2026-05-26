@@ -1,1 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>THICC 🍑 · genz fitness</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --surface: #1a1a1f;
+      --surface2: #25252c;
+      --text: #f0f0f5;
+      --text2: #9a9aa6;
+      --accent: #c4ff3d;
+      --accent2: #ff3b6e;
+      --gradient: linear-gradient(135deg, #c4ff3d, #00f0ff);
+      --radius: 24px;
+      --font: 'SF Pro Display', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
 
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      padding: 0 20px 40px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .app {
+      max-width: 600px;
+      width: 100%;
+      padding-top: 100px; /* space for sticky header */
+    }
+
+    /* Sticky header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 600px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10,10,11,0.85);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-radius: 0 0 28px 28px;
+      padding: 16px 24px;
+      z-index: 100;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-top: none;
+    }
+    .logo {
+      font-weight: 800;
+      font-size: 1.9rem;
+      letter-spacing: -1px;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      filter: drop-shadow(0 0 12px rgba(196,255,61,0.3));
+    }
+    .peach { font-size: 2rem; animation: bouncePeach 2s infinite; }
+    @keyframes bouncePeach { 0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);} }
+    .streak-badge {
+      background: var(--surface2);
+      border-radius: 30px;
+      padding: 8px 18px;
+      font-weight: 700;
+      color: var(--accent2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(255,59,110,0.3);
+    }
+
+    /* Tab navigation */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      background: var(--surface);
+      border-radius: 40px;
+      padding: 6px;
+      position: sticky;
+      top: 90px;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+    }
+    .tab-btn {
+      flex: 1;
+      text-align: center;
+      padding: 14px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      background: transparent;
+      color: var(--text2);
+      letter-spacing: 0.5px;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #000;
+      box-shadow: 0 8px 20px rgba(196,255,61,0.4);
+      transform: scale(1.02);
+    }
+    .tab-content { display: none; animation: fadeSlide 0.4s ease; }
+    .tab-content.active { display: block; }
+    @keyframes fadeSlide { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.7); }
+    .section-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text2);
+      margin-bottom: 18px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .stat-item {
+      background: var(--surface2);
+      border-radius: 20px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-value { font-size: 1.6rem; font-weight: 800; }
+    .stat-label { font-size: 0.75rem; color: var(--text2); margin-top: 6px; }
+
+    .checklist { display: flex; flex-direction: column; gap: 10px; }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--surface2);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .check-item.checked { background: rgba(196,255,61,0.1); }
+    .check-box {
+      width: 26px; height: 26px;
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.2s;
+      flex-shrink: 0;
+    }
+    .check-item.checked .check-box { background: var(--accent); border-color: var(--accent); }
+    .check-mark {
+      opacity:0; transform: scale(0); transition:0.2s;
+      color: #000; font-weight: bold; font-size: 0.9rem;
+    }
+    .check-item.checked .check-mark { opacity:1; transform: scale(1); }
+
+    .water-cups { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .cup { font-size: 2.2rem; cursor: pointer; filter: grayscale(1); opacity:0.4; transition: all 0.3s; }
+    .cup.filled { filter: grayscale(0); opacity:1; transform: scale(1.2); }
+
+    .input-group { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .weight-input {
+      background: var(--surface2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50px;
+      padding: 14px 20px;
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 600;
+      width: 130px;
+      text-align: center;
+      outline: none;
+    }
+    .weight-input:focus { border-color: var(--accent); }
+    .mood-selector { display: flex; gap: 8px; }
+    .mood-btn {
+      background: var(--surface2);
+      border: none;
+      border-radius: 50px;
+      padding: 10px 16px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: 0.2s;
+      opacity:0.6;
+    }
+    .mood-btn.active { background: var(--accent); opacity:1; color:#000; }
+
+    .meal-input-wrap { position: relative; margin-bottom: 14px; }
+    .meal-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 14px 18px;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+    }
+    .suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--surface2);
+      border-radius: 12px;
+      margin-top: 6px;
+      z-index: 25;
+      max-height: 180px;
+      overflow-y: auto;
+      display: none;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .suggestion-item {
+      padding: 12px 18px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      transition: background 0.2s;
+    }
+    .suggestion-item:hover { background: rgba(196,255,61,0.15); }
+    .cal-badge { color: var(--accent); font-weight: 700; }
+
+    .save-btn {
+      background: var(--gradient);
+      color: #000;
+      font-weight: 800;
+      font-size: 1.2rem;
+      padding: 16px;
+      border-radius: 50px;
+      border: none;
+      width: 100%;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s;
+      letter-spacing: 1px;
+    }
+    .save-btn:active { transform: scale(0.96); }
+
+    .chart-box {
+      background: var(--surface2);
+      border-radius: 20px;
+      padding: 20px;
+      height: 300px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .chart-box canvas { width: 100% !important; height: 100% !important; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    th { color: var(--text2); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+
+    .toast {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-150px);
+      background: var(--accent);
+      color: #000;
+      padding: 14px 30px;
+      border-radius: 50px;
+      font-weight: 800;
+      z-index: 999;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 30px rgba(196,255,61,0.5);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <!-- Sticky header -->
+  <div class="header">
+    <div class="logo">THICC<span class="peach">🍑</span></div>
+    <div class="streak-badge" id="streakDisplay">🔥 <span id="streakCount">0</span> days</div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="today">💪 Today</button>
+    <button class="tab-btn" data-tab="trends">📈 Trends</button>
+    <button class="tab-btn" data-tab="history">📜 History</button>
+  </div>
+
+  <!-- TODAY TAB -->
+  <div class="tab-content active" id="todayTab">
+    <div class="card">
+      <div class="section-title">Current Vibe</div>
+      <div class="stats-grid">
+        <div class="stat-item"><div class="stat-value" id="currentWeightDisplay">--</div><div class="stat-label">Weight (kg)</div></div>
+        <div class="stat-item"><div class="stat-value" id="kgLostDisplay">0</div><div class="stat-label">Lost total</div></div>
+        <div class="stat-item"><div class="stat-value" id="daysLoggedDisplay">0</div><div class="stat-label">Days logged</div></div>
+        <div class="stat-item"><div class="stat-value" id="avgKgWeekDisplay">--</div><div class="stat-label">kg/week avg</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Daily Check-in</div>
+      <div class="checklist" id="checklistContainer">
+        <div class="check-item" data-key="workout"><div class="check-box"><span class="check-mark">✓</span></div> Workout <span style="margin-left:auto;color:var(--text2)">20 min</span></div>
+        <div class="check-item" data-key="walk"><div class="check-box"><span class="check-mark">✓</span></div> Evening Walk</div>
+        <div class="check-item" data-key="badminton"><div class="check-box"><span class="check-mark">✓</span></div> Badminton</div>
+        <div class="check-item" data-key="diet"><div class="check-box"><span class="check-mark">✓</span></div> Diet on Track</div>
+        <div class="check-item" data-key="noLateEating"><div class="check-box"><span class="check-mark">✓</span></div> No Late Eating</div>
+        <div class="check-item" data-key="mbaStudy"><div class="check-box"><span class="check-mark">✓</span></div> MBA Study</div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+          <span style="font-weight:700;">💧 Hydration</span>
+          <span id="waterTotal" style="color:var(--accent);">0 / 3500 ml</span>
+        </div>
+        <div class="water-cups" id="waterCupsContainer">
+          <span class="cup">💧</span><span class="cup">💧</span><span class="cup">💧</span><span class="cup">💧</span><span class="cup">💧</span><span class="cup">💧</span><span class="cup">💧</span>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="input-group">
+          <input type="number" id="weightInput" class="weight-input" placeholder="Weight kg" step="0.1">
+          <div class="mood-selector" id="moodSelector">
+            <button class="mood-btn" data-mood="Terrible">😩</button>
+            <button class="mood-btn" data-mood="Okay">😐</button>
+            <button class="mood-btn" data-mood="Good">😊</button>
+            <button class="mood-btn" data-mood="Great">🔥</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Meals</div>
+      <div class="meal-input-wrap">
+        <input type="text" id="breakfastInput" class="meal-input" placeholder="Breakfast (e.g., dosa, idli)" autocomplete="off">
+        <div class="suggestions" id="breakfastSuggestions"></div>
+        <div style="margin-top:8px;"><span style="color:var(--accent);" id="breakfastCalDisplay">0 kcal</span></div>
+      </div>
+      <div class="meal-input-wrap">
+        <input type="text" id="lunchInput" class="meal-input" placeholder="Lunch (e.g., rice, sambar)" autocomplete="off">
+        <div class="suggestions" id="lunchSuggestions"></div>
+        <div style="margin-top:8px;"><span style="color:var(--accent);" id="lunchCalDisplay">0 kcal</span></div>
+      </div>
+      <div class="meal-input-wrap">
+        <input type="text" id="dinnerInput" class="meal-input" placeholder="Dinner (e.g., chapati, curry)" autocomplete="off">
+        <div class="suggestions" id="dinnerSuggestions"></div>
+        <div style="margin-top:8px;"><span style="color:var(--accent);" id="dinnerCalDisplay">0 kcal</span></div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div style="display:flex; gap:12px;">
+          <div style="flex:1;">
+            <label style="font-size:0.8rem; color:var(--text2);">🏸 Badminton kcal</label>
+            <input type="number" id="badmintonCals" class="weight-input" placeholder="burn" style="width:100%;">
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:0.8rem; color:var(--text2);">🚶 Walking kcal</label>
+            <input type="number" id="walkingCals" class="weight-input" placeholder="burn" style="width:100%;">
+          </div>
+        </div>
+      </div>
+
+      <button class="save-btn" id="saveBtn">Log Today · Keep It Thicc 🍑</button>
+    </div>
+  </div>
+
+  <!-- TRENDS TAB -->
+  <div class="tab-content" id="trendsTab">
+    <div class="card">
+      <div class="section-title">⚖️ Weight Trend</div>
+      <div class="chart-box"><canvas id="weightChart"></canvas></div>
+      <div class="section-title">🔥 Calorie Intake vs Burn</div>
+      <div class="chart-box"><canvas id="calScatterChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div class="tab-content" id="historyTab">
+    <div class="card">
+      <div class="section-title">Your Logs</div>
+      <div class="table-wrap">
+        <table id="historyTable">
+          <thead><tr><th>Date</th><th>Weight</th><th>Mood</th><th>Cal In</th><th>Cal Out</th><th>Score</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Thiccness saved! 🍑</div>
+</div>
+
+<script>
+(function() {
+  // ---------- FOOD DATABASE (South Indian) ----------
+  const foodDB = [
+    { name: "Idli (2 pcs)", kcal: 140 },
+    { name: "Dosa (plain)", kcal: 180 },
+    { name: "Masala Dosa", kcal: 380 },
+    { name: "Vada (1 pc)", kcal: 150 },
+    { name: "Upma", kcal: 210 },
+    { name: "Pongal", kcal: 280 },
+    { name: "Lemon Rice", kcal: 300 },
+    { name: "Curd Rice", kcal: 240 },
+    { name: "Sambar Rice", kcal: 350 },
+    { name: "Rasam Rice", kcal: 280 },
+    { name: "Chapati (1 pc)", kcal: 100 },
+    { name: "Parotta", kcal: 260 },
+    { name: "Appam", kcal: 120 },
+    { name: "Puttu", kcal: 180 },
+    { name: "Idiyappam", kcal: 150 },
+    { name: "Biryani (veg)", kcal: 480 },
+    { name: "Meals (full thali)", kcal: 650 },
+    { name: "Curd / Yogurt", kcal: 60 },
+    { name: "Banana", kcal: 90 },
+    { name: "Tea with milk", kcal: 40 },
+    { name: "Coffee", kcal: 30 },
+    { name: "Payasam", kcal: 300 }
+  ];
+
+  const STORAGE_KEY = 'thiccLogs';
+  let logs = [];
+  let todayStr = new Date().toISOString().split('T')[0];
+  let weightChart, calScatterChart;
+
+  function loadLogs() { logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  function saveLogs() { localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); }
+  function getTodayLog() { return logs.find(l => l.date === todayStr) || null; }
+
+  // ---------- AUTO‑CALCULATE MEALS (exact match) ----------
+  function autoSetMealCalories(inputId, calDisplayId) {
+    const input = document.getElementById(inputId);
+    const display = document.getElementById(calDisplayId);
+    const foodName = input.value.trim();
+    const match = foodDB.find(f => f.name.toLowerCase() === foodName.toLowerCase());
+    if (match) {
+      input.dataset.kcal = match.kcal;
+      display.textContent = match.kcal + ' kcal';
+    } else {
+      delete input.dataset.kcal;
+      display.textContent = '0 kcal';
+    }
+  }
+
+  // Autocomplete + auto‑set on exact match
+  function setupAutocomplete(inputId, suggestionsId, calDisplayId) {
+    const input = document.getElementById(inputId);
+    const suggestionsBox = document.getElementById(suggestionsId);
+    const calDisplay = document.getElementById(calDisplayId);
+
+    input.addEventListener('input', () => {
+      const query = input.value.toLowerCase();
+      suggestionsBox.innerHTML = '';
+      if (query.length < 2) { suggestionsBox.style.display = 'none'; return; }
+      const matches = foodDB.filter(f => f.name.toLowerCase().includes(query));
+      if (matches.length === 0) { suggestionsBox.style.display = 'none'; }
+      else {
+        matches.forEach(food => {
+          const div = document.createElement('div');
+          div.className = 'suggestion-item';
+          div.innerHTML = `<span>${food.name}</span><span class="cal-badge">${food.kcal} kcal</span>`;
+          div.addEventListener('click', () => {
+            input.value = food.name;
+            input.dataset.kcal = food.kcal;
+            calDisplay.textContent = food.kcal + ' kcal';
+            suggestionsBox.style.display = 'none';
+          });
+          suggestionsBox.appendChild(div);
+        });
+        suggestionsBox.style.display = 'block';
+      }
+      // Auto‑set if exact match typed
+      autoSetMealCalories(inputId, calDisplayId);
+    });
+
+    input.addEventListener('blur', () => {
+      setTimeout(() => { suggestionsBox.style.display = 'none'; }, 150);
+    });
+    input.addEventListener('focus', () => {
+      if (input.value.length >= 2) suggestionsBox.style.display = 'block';
+    });
+  }
+
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
+      if (btn.dataset.tab === 'trends') updateCharts();
+    });
+  });
+
+  // Check list toggling
+  document.querySelectorAll('.check-item').forEach(item => {
+    item.addEventListener('click', () => item.classList.toggle('checked'));
+  });
+
+  // Water cups
+  document.querySelectorAll('.cup').forEach((cup, i) => {
+    cup.addEventListener('click', () => {
+      const filled = cup.classList.contains('filled');
+      document.querySelectorAll('.cup').forEach((c, j) => {
+        if (!filled && j <= i) c.classList.add('filled');
+        if (filled && j >= i) c.classList.remove('filled');
+      });
+      const total = document.querySelectorAll('.cup.filled').length;
+      document.getElementById('waterTotal').textContent = total*500 + ' / 3500 ml';
+    });
+  });
+
+  // Mood
+  document.querySelectorAll('.mood-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // ---------- UPDATE UI ----------
+  function updateAllUI() {
+    const today = getTodayLog();
+    const streak = calculateStreak();
+    document.getElementById('streakCount').textContent = streak;
+
+    const weightLogs = logs.filter(l => l.weight != null && !isNaN(l.weight)).sort((a,b) => b.date.localeCompare(a.date));
+    const latestWeight = weightLogs[0]?.weight;
+    document.getElementById('currentWeightDisplay').textContent = latestWeight ? latestWeight.toFixed(1)+' kg' : '--';
+    document.getElementById('kgLostDisplay').textContent = latestWeight ? Math.max(0, 114.2 - latestWeight).toFixed(1) : '0';
+    document.getElementById('daysLoggedDisplay').textContent = new Set(logs.map(l=>l.date)).size;
+    const avg = calcAvgKgWeek();
+    document.getElementById('avgKgWeekDisplay').textContent = avg !== null ? avg.toFixed(1) : '--';
+
+    // Checklist
+    document.querySelectorAll('.check-item').forEach(item => {
+      const key = item.dataset.key;
+      if (today?.checklist?.[key]) item.classList.add('checked');
+      else item.classList.remove('checked');
+    });
+
+    // Water
+    const cups = today?.waterCups || 0;
+    document.querySelectorAll('.cup').forEach((cup, i) => cup.classList.toggle('filled', i < cups));
+    document.getElementById('waterTotal').textContent = cups*500 + ' / 3500 ml';
+
+    // Mood
+    document.querySelectorAll('.mood-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mood === today?.mood);
+    });
+    document.getElementById('weightInput').value = today?.weight || '';
+
+    // Meals
+    const breakfastInput = document.getElementById('breakfastInput');
+    breakfastInput.value = today?.meals?.breakfast?.name || '';
+    if (today?.meals?.breakfast?.kcal) breakfastInput.dataset.kcal = today.meals.breakfast.kcal;
+    else delete breakfastInput.dataset.kcal;
+    document.getElementById('breakfastCalDisplay').textContent = (today?.meals?.breakfast?.kcal || 0) + ' kcal';
+
+    const lunchInput = document.getElementById('lunchInput');
+    lunchInput.value = today?.meals?.lunch?.name || '';
+    if (today?.meals?.lunch?.kcal) lunchInput.dataset.kcal = today.meals.lunch.kcal;
+    else delete lunchInput.dataset.kcal;
+    document.getElementById('lunchCalDisplay').textContent = (today?.meals?.lunch?.kcal || 0) + ' kcal';
+
+    const dinnerInput = document.getElementById('dinnerInput');
+    dinnerInput.value = today?.meals?.dinner?.name || '';
+    if (today?.meals?.dinner?.kcal) dinnerInput.dataset.kcal = today.meals.dinner.kcal;
+    else delete dinnerInput.dataset.kcal;
+    document.getElementById('dinnerCalDisplay').textContent = (today?.meals?.dinner?.kcal || 0) + ' kcal';
+
+    document.getElementById('badmintonCals').value = today?.exercise?.badminton || '';
+    document.getElementById('walkingCals').value = today?.exercise?.walking || '';
+
+    renderHistoryTable();
+    updateCharts();
+  }
+
+  function calculateStreak() {
+    const dates = [...new Set(logs.map(l => l.date))].sort().reverse();
+    if (!dates.length) return 0;
+    let streak = 0;
+    let cur = new Date(todayStr);
+    if (dates[0] !== todayStr) {
+      cur.setDate(cur.getDate()-1);
+      if (dates[0] !== cur.toISOString().split('T')[0]) return 0;
+      streak = 1;
+    } else streak = 1;
+    for (let i=1; i<dates.length; i++) {
+      cur.setDate(cur.getDate()-1);
+      if (dates[i] === cur.toISOString().split('T')[0]) streak++;
+      else break;
+    }
+    return streak;
+  }
+
+  function calcAvgKgWeek() {
+    const wLogs = logs.filter(l=>l.weight).sort((a,b)=>a.date.localeCompare(b.date));
+    if (wLogs.length<2) return null;
+    const d1 = new Date(wLogs[0].date), d2 = new Date(wLogs[wLogs.length-1].date);
+    const days = (d2-d1)/(86400000);
+    if (days<1) return null;
+    return ((wLogs[0].weight - wLogs[wLogs.length-1].weight)/days)*7;
+  }
+
+  // ---------- SAVE ----------
+  function saveEntry() {
+    const checklist = {};
+    document.querySelectorAll('.check-item').forEach(item => {
+      checklist[item.dataset.key] = item.classList.contains('checked');
+    });
+    const water = document.querySelectorAll('.cup.filled').length;
+    const weight = parseFloat(document.getElementById('weightInput').value) || null;
+    const mood = document.querySelector('.mood-btn.active')?.dataset.mood || null;
+
+    const getMealData = (inputId, calDisplayId) => {
+      const input = document.getElementById(inputId);
+      const kcal = input.dataset.kcal ? parseInt(input.dataset.kcal) : (parseInt(document.getElementById(calDisplayId).textContent) || 0);
+      return { name: input.value, kcal };
+    };
+
+    const meals = {
+      breakfast: getMealData('breakfastInput', 'breakfastCalDisplay'),
+      lunch: getMealData('lunchInput', 'lunchCalDisplay'),
+      dinner: getMealData('dinnerInput', 'dinnerCalDisplay')
+    };
+
+    const exercise = {
+      badminton: parseFloat(document.getElementById('badmintonCals').value) || 0,
+      walking: parseFloat(document.getElementById('walkingCals').value) || 0
+    };
+
+    const entry = { date: todayStr, checklist, waterCups: water, weight, mood, meals, exercise };
+    const idx = logs.findIndex(l => l.date === todayStr);
+    if (idx >= 0) logs[idx] = entry;
+    else logs.push(entry);
+    saveLogs();
+    updateAllUI();
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', saveEntry);
+
+  // ---------- HISTORY TABLE (with score) ----------
+  function renderHistoryTable() {
+    const tbody = document.querySelector('#historyTable tbody');
+    tbody.innerHTML = '';
+    [...logs].sort((a,b) => b.date.localeCompare(a.date)).slice(0,30).forEach(log => {
+      const row = tbody.insertRow();
+      const calIn = (log.meals?.breakfast?.kcal||0)+(log.meals?.lunch?.kcal||0)+(log.meals?.dinner?.kcal||0);
+      const calOut = (log.exercise?.badminton||0)+(log.exercise?.walking||0);
+      const checklist = log.checklist || {};
+      const score = Object.values(checklist).filter(v => v === true).length;
+      row.innerHTML = `<td>${log.date}</td><td>${log.weight||'-'}</td><td>${log.mood||'-'}</td><td>${calIn}</td><td>${calOut}</td><td>${score}/6</td>`;
+    });
+  }
+
+  // ---------- CHARTS ----------
+  function updateCharts() {
+    const sorted = [...logs].sort((a,b) => a.date.localeCompare(b.date));
+    const labels = sorted.map(l=>l.date);
+    const weights = sorted.map(l=>l.weight);
+    const intakes = sorted.map(l=> (l.meals?.breakfast?.kcal||0)+(l.meals?.lunch?.kcal||0)+(l.meals?.dinner?.kcal||0));
+    const burns = sorted.map(l=> (l.exercise?.badminton||0)+(l.exercise?.walking||0));
+
+    // Weight chart
+    if (weightChart) weightChart.destroy();
+    const weightCtx = document.getElementById('weightChart').getContext('2d');
+    weightChart = new Chart(weightCtx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          data: weights,
+          borderColor: '#c4ff3d',
+          backgroundColor: 'rgba(196,255,61,0.2)',
+          tension: 0.4,
+          borderWidth: 2,
+          pointBackgroundColor: '#c4ff3d',
+          pointRadius: 3,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => `${ctx.parsed.y} kg` } }
+        },
+        scales: {
+          y: {
+            min: 85,
+            max: 125,
+            ticks: { color: '#9a9aa6', callback: v => v + ' kg' },
+            grid: { color: 'rgba(255,255,255,0.05)' }
+          },
+          x: {
+            ticks: { color: '#9a9aa6', maxTicksLimit: 8 },
+            grid: { color: 'rgba(255,255,255,0.05)' }
+          }
+        }
+      }
+    });
+
+    // Calorie scatter (intake x, burn y)
+    if (calScatterChart) calScatterChart.destroy();
+    const scatterCtx = document.getElementById('calScatterChart').getContext('2d');
+    const scatterData = sorted.map((l, i) => ({ x: intakes[i], y: burns[i], date: l.date }));
+
+    calScatterChart = new Chart(scatterCtx, {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: 'Daily Intake vs Burn',
+          data: scatterData,
+          backgroundColor: '#ff3b6e',
+          borderColor: '#ff3b6e',
+          pointRadius: 6,
+          pointHoverRadius: 8,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => {
+                const point = scatterData[ctx.dataIndex];
+                return `${point.date}: ${point.x} kcal in, ${point.y} kcal out`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Calorie Intake (kcal)', color: '#9a9aa6' },
+            ticks: { color: '#9a9aa6' },
+            grid: { color: 'rgba(255,255,255,0.05)' }
+          },
+          y: {
+            title: { display: true, text: 'Calorie Burn (kcal)', color: '#9a9aa6' },
+            ticks: { color: '#9a9aa6' },
+            grid: { color: 'rgba(255,255,255,0.05)' }
+          }
+        }
+      }
+    });
+  }
+
+  // Initialize autocomplete for all meals
+  setupAutocomplete('breakfastInput', 'breakfastSuggestions', 'breakfastCalDisplay');
+  setupAutocomplete('lunchInput', 'lunchSuggestions', 'lunchCalDisplay');
+  setupAutocomplete('dinnerInput', 'dinnerSuggestions', 'dinnerCalDisplay');
+
+  loadLogs();
+  updateAllUI();
+})();
+</script>
+</body>
+</html>
