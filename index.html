@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>THICC 🍑 · genz fitness</title>
+  <title>THICC 🍑</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -32,7 +32,7 @@
     .app {
       max-width: 600px;
       width: 100%;
-      padding-top: 100px; /* space for sticky header */
+      padding-top: 100px;
     }
 
     /* Sticky header */
@@ -65,10 +65,16 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      filter: drop-shadow(0 0 12px rgba(196,255,61,0.3));
     }
-    .peach { font-size: 2rem; animation: bouncePeach 2s infinite; }
-    @keyframes bouncePeach { 0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);} }
+    .peach {
+      font-size: 2rem;
+      animation: floatPeach 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 8px rgba(196,255,61,0.5));
+    }
+    @keyframes floatPeach {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
     .streak-badge {
       background: var(--surface2);
       border-radius: 30px;
@@ -80,8 +86,17 @@
       gap: 6px;
       border: 1px solid rgba(255,59,110,0.3);
     }
+    .flame-icon {
+      display: inline-block;
+      animation: flicker 1.5s infinite;
+      font-size: 1.2rem;
+    }
+    @keyframes flicker {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.15); opacity: 0.8; }
+    }
 
-    /* Tab navigation */
+    /* Tabs */
     .tabs {
       display: flex;
       gap: 8px;
@@ -118,7 +133,6 @@
     .tab-content.active { display: block; }
     @keyframes fadeSlide { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
 
-    /* Cards */
     .card {
       background: var(--surface);
       border-radius: var(--radius);
@@ -136,11 +150,7 @@
       margin-bottom: 18px;
     }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .stat-item {
       background: var(--surface2);
       border-radius: 20px;
@@ -266,7 +276,7 @@
       background: var(--surface2);
       border-radius: 20px;
       padding: 20px;
-      height: 300px;
+      height: 320px;
       margin-bottom: 16px;
       position: relative;
     }
@@ -296,13 +306,13 @@
 </head>
 <body>
 <div class="app">
-  <!-- Sticky header -->
   <div class="header">
     <div class="logo">THICC<span class="peach">🍑</span></div>
-    <div class="streak-badge" id="streakDisplay">🔥 <span id="streakCount">0</span> days</div>
+    <div class="streak-badge">
+      <span class="flame-icon">🔥</span> <span id="streakCount">0</span> days
+    </div>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs">
     <button class="tab-btn active" data-tab="today">💪 Today</button>
     <button class="tab-btn" data-tab="trends">📈 Trends</button>
@@ -355,20 +365,30 @@
       </div>
     </div>
 
+    <!-- Calorie summary card -->
     <div class="card">
-      <div class="section-title">Meals</div>
+      <div class="section-title">Today's Energy</div>
+      <div style="display:flex; justify-content:space-around; text-align:center;">
+        <div><div style="font-size:1.5rem; font-weight:700;" id="intakeDisplay">0</div><div style="color:var(--text2);">kcal in</div></div>
+        <div><div style="font-size:1.5rem; font-weight:700;" id="burnDisplay">0</div><div style="color:var(--text2);">kcal out</div></div>
+        <div><div style="font-size:1.5rem; font-weight:700;" id="netDisplay">0</div><div style="color:var(--text2);">net</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Calorie Section</div>
       <div class="meal-input-wrap">
-        <input type="text" id="breakfastInput" class="meal-input" placeholder="Breakfast (e.g., dosa, idli)" autocomplete="off">
+        <input type="text" id="breakfastInput" class="meal-input" placeholder="Breakfast (e.g., Dosa, Egg, Caesar Salad)" autocomplete="off">
         <div class="suggestions" id="breakfastSuggestions"></div>
         <div style="margin-top:8px;"><span style="color:var(--accent);" id="breakfastCalDisplay">0 kcal</span></div>
       </div>
       <div class="meal-input-wrap">
-        <input type="text" id="lunchInput" class="meal-input" placeholder="Lunch (e.g., rice, sambar)" autocomplete="off">
+        <input type="text" id="lunchInput" class="meal-input" placeholder="Lunch (e.g., Rice, Chicken, Salad)" autocomplete="off">
         <div class="suggestions" id="lunchSuggestions"></div>
         <div style="margin-top:8px;"><span style="color:var(--accent);" id="lunchCalDisplay">0 kcal</span></div>
       </div>
       <div class="meal-input-wrap">
-        <input type="text" id="dinnerInput" class="meal-input" placeholder="Dinner (e.g., chapati, curry)" autocomplete="off">
+        <input type="text" id="dinnerInput" class="meal-input" placeholder="Dinner (e.g., Pasta, Fish, Soup)" autocomplete="off">
         <div class="suggestions" id="dinnerSuggestions"></div>
         <div style="margin-top:8px;"><span style="color:var(--accent);" id="dinnerCalDisplay">0 kcal</span></div>
       </div>
@@ -386,15 +406,15 @@
         </div>
       </div>
 
-      <button class="save-btn" id="saveBtn">Log Today · Keep It Thicc 🍑</button>
+      <button class="save-btn" id="saveBtn">Cook</button>
     </div>
   </div>
 
   <!-- TRENDS TAB -->
   <div class="tab-content" id="trendsTab">
     <div class="card">
-      <div class="section-title">⚖️ Weight Trend</div>
-      <div class="chart-box"><canvas id="weightChart"></canvas></div>
+      <div class="section-title">⚖️ Weight by Week</div>
+      <div class="chart-box"><canvas id="weightWeekChart"></canvas></div>
       <div class="section-title">🔥 Calorie Intake vs Burn</div>
       <div class="chart-box"><canvas id="calScatterChart"></canvas></div>
     </div>
@@ -406,7 +426,7 @@
       <div class="section-title">Your Logs</div>
       <div class="table-wrap">
         <table id="historyTable">
-          <thead><tr><th>Date</th><th>Weight</th><th>Mood</th><th>Cal In</th><th>Cal Out</th><th>Score</th></tr></thead>
+          <thead><tr><th>Date</th><th>Weight</th><th>Mood</th><th>Cal In</th><th>Cal Out</th><th>Non‑Neg</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -418,8 +438,9 @@
 
 <script>
 (function() {
-  // ---------- FOOD DATABASE (South Indian) ----------
+  // ---------- EXPANDED FOOD DATABASE ----------
   const foodDB = [
+    // South Indian
     { name: "Idli (2 pcs)", kcal: 140 },
     { name: "Dosa (plain)", kcal: 180 },
     { name: "Masala Dosa", kcal: 380 },
@@ -435,9 +456,32 @@
     { name: "Appam", kcal: 120 },
     { name: "Puttu", kcal: 180 },
     { name: "Idiyappam", kcal: 150 },
+    // Global breakfast
+    { name: "Egg (boiled)", kcal: 78 },
+    { name: "Egg (scrambled)", kcal: 150 },
+    { name: "Toast (1 slice)", kcal: 80 },
+    { name: "Butter Toast", kcal: 120 },
+    { name: "Cereal with milk", kcal: 200 },
+    { name: "Oatmeal", kcal: 160 },
+    { name: "Pancakes (2)", kcal: 250 },
+    { name: "Smoothie", kcal: 180 },
+    { name: "Fruit salad", kcal: 120 },
+    // Common lunch/dinner
+    { name: "Rice (cooked, 1 cup)", kcal: 200 },
+    { name: "Chicken breast (grilled)", kcal: 280 },
+    { name: "Salad (Caesar)", kcal: 320 },
+    { name: "Salad (garden)", kcal: 100 },
+    { name: "Pasta (1 plate)", kcal: 350 },
+    { name: "Pizza (1 slice)", kcal: 285 },
+    { name: "Burger", kcal: 500 },
+    { name: "French fries", kcal: 365 },
+    { name: "Sushi (6 pcs)", kcal: 250 },
+    { name: "Noodles", kcal: 310 },
+    { name: "Soup (tomato)", kcal: 90 },
+    { name: "Grilled fish", kcal: 200 },
+    { name: "Curry (veg)", kcal: 250 },
     { name: "Biryani (veg)", kcal: 480 },
     { name: "Meals (full thali)", kcal: 650 },
-    { name: "Curd / Yogurt", kcal: 60 },
     { name: "Banana", kcal: 90 },
     { name: "Tea with milk", kcal: 40 },
     { name: "Coffee", kcal: 30 },
@@ -447,64 +491,77 @@
   const STORAGE_KEY = 'thiccLogs';
   let logs = [];
   let todayStr = new Date().toISOString().split('T')[0];
-  let weightChart, calScatterChart;
+  let weightWeekChart, calScatterChart;
 
   function loadLogs() { logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
   function saveLogs() { localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); }
   function getTodayLog() { return logs.find(l => l.date === todayStr) || null; }
 
-  // ---------- AUTO‑CALCULATE MEALS (exact match) ----------
-  function autoSetMealCalories(inputId, calDisplayId) {
-    const input = document.getElementById(inputId);
-    const display = document.getElementById(calDisplayId);
-    const foodName = input.value.trim();
-    const match = foodDB.find(f => f.name.toLowerCase() === foodName.toLowerCase());
-    if (match) {
-      input.dataset.kcal = match.kcal;
-      display.textContent = match.kcal + ' kcal';
-    } else {
-      delete input.dataset.kcal;
-      display.textContent = '0 kcal';
-    }
+  // ---------- MULTI-FOOD CALORIE CALCULATION ----------
+  function calcMealCalories(inputValue) {
+    if (!inputValue.trim()) return 0;
+    const items = inputValue.split(',').map(s => s.trim().toLowerCase());
+    let total = 0;
+    items.forEach(item => {
+      const match = foodDB.find(f => f.name.toLowerCase() === item);
+      if (match) total += match.kcal;
+    });
+    return total;
   }
 
-  // Autocomplete + auto‑set on exact match
+  function updateMealDisplay(inputId, calDisplayId) {
+    const input = document.getElementById(inputId);
+    const display = document.getElementById(calDisplayId);
+    const total = calcMealCalories(input.value);
+    display.textContent = total + ' kcal';
+    input.dataset.kcal = total; // store for saving
+  }
+
+  // Autocomplete (works on last token after comma)
   function setupAutocomplete(inputId, suggestionsId, calDisplayId) {
     const input = document.getElementById(inputId);
     const suggestionsBox = document.getElementById(suggestionsId);
-    const calDisplay = document.getElementById(calDisplayId);
 
     input.addEventListener('input', () => {
-      const query = input.value.toLowerCase();
+      const fullValue = input.value;
+      const lastCommaIdx = fullValue.lastIndexOf(',');
+      const lastToken = fullValue.substring(lastCommaIdx + 1).trim();
       suggestionsBox.innerHTML = '';
-      if (query.length < 2) { suggestionsBox.style.display = 'none'; return; }
-      const matches = foodDB.filter(f => f.name.toLowerCase().includes(query));
-      if (matches.length === 0) { suggestionsBox.style.display = 'none'; }
-      else {
-        matches.forEach(food => {
-          const div = document.createElement('div');
-          div.className = 'suggestion-item';
-          div.innerHTML = `<span>${food.name}</span><span class="cal-badge">${food.kcal} kcal</span>`;
-          div.addEventListener('click', () => {
-            input.value = food.name;
-            input.dataset.kcal = food.kcal;
-            calDisplay.textContent = food.kcal + ' kcal';
-            suggestionsBox.style.display = 'none';
-          });
-          suggestionsBox.appendChild(div);
-        });
-        suggestionsBox.style.display = 'block';
+      if (lastToken.length < 2) {
+        suggestionsBox.style.display = 'none';
+        updateMealDisplay(inputId, calDisplayId);
+        return;
       }
-      // Auto‑set if exact match typed
-      autoSetMealCalories(inputId, calDisplayId);
+      const matches = foodDB.filter(f => f.name.toLowerCase().includes(lastToken.toLowerCase()));
+      if (matches.length === 0) {
+        suggestionsBox.style.display = 'none';
+        updateMealDisplay(inputId, calDisplayId);
+        return;
+      }
+      matches.forEach(food => {
+        const div = document.createElement('div');
+        div.className = 'suggestion-item';
+        div.innerHTML = `<span>${food.name}</span><span class="cal-badge">${food.kcal} kcal</span>`;
+        div.addEventListener('click', () => {
+          const before = fullValue.substring(0, lastCommaIdx + 1) + ' ' + food.name;
+          input.value = before.trim();
+          suggestionsBox.style.display = 'none';
+          updateMealDisplay(inputId, calDisplayId);
+        });
+        suggestionsBox.appendChild(div);
+      });
+      suggestionsBox.style.display = 'block';
     });
 
     input.addEventListener('blur', () => {
       setTimeout(() => { suggestionsBox.style.display = 'none'; }, 150);
+      updateMealDisplay(inputId, calDisplayId);
     });
     input.addEventListener('focus', () => {
       if (input.value.length >= 2) suggestionsBox.style.display = 'block';
     });
+    // initial
+    updateMealDisplay(inputId, calDisplayId);
   }
 
   // Tab switching
@@ -518,7 +575,7 @@
     });
   });
 
-  // Check list toggling
+  // Checklist toggling
   document.querySelectorAll('.check-item').forEach(item => {
     item.addEventListener('click', () => item.classList.toggle('checked'));
   });
@@ -577,26 +634,22 @@
     document.getElementById('weightInput').value = today?.weight || '';
 
     // Meals
-    const breakfastInput = document.getElementById('breakfastInput');
-    breakfastInput.value = today?.meals?.breakfast?.name || '';
-    if (today?.meals?.breakfast?.kcal) breakfastInput.dataset.kcal = today.meals.breakfast.kcal;
-    else delete breakfastInput.dataset.kcal;
-    document.getElementById('breakfastCalDisplay').textContent = (today?.meals?.breakfast?.kcal || 0) + ' kcal';
-
-    const lunchInput = document.getElementById('lunchInput');
-    lunchInput.value = today?.meals?.lunch?.name || '';
-    if (today?.meals?.lunch?.kcal) lunchInput.dataset.kcal = today.meals.lunch.kcal;
-    else delete lunchInput.dataset.kcal;
-    document.getElementById('lunchCalDisplay').textContent = (today?.meals?.lunch?.kcal || 0) + ' kcal';
-
-    const dinnerInput = document.getElementById('dinnerInput');
-    dinnerInput.value = today?.meals?.dinner?.name || '';
-    if (today?.meals?.dinner?.kcal) dinnerInput.dataset.kcal = today.meals.dinner.kcal;
-    else delete dinnerInput.dataset.kcal;
-    document.getElementById('dinnerCalDisplay').textContent = (today?.meals?.dinner?.kcal || 0) + ' kcal';
+    document.getElementById('breakfastInput').value = today?.meals?.breakfast?.name || '';
+    updateMealDisplay('breakfastInput', 'breakfastCalDisplay');
+    document.getElementById('lunchInput').value = today?.meals?.lunch?.name || '';
+    updateMealDisplay('lunchInput', 'lunchCalDisplay');
+    document.getElementById('dinnerInput').value = today?.meals?.dinner?.name || '';
+    updateMealDisplay('dinnerInput', 'dinnerCalDisplay');
 
     document.getElementById('badmintonCals').value = today?.exercise?.badminton || '';
     document.getElementById('walkingCals').value = today?.exercise?.walking || '';
+
+    // Calorie summary
+    const intake = today ? (today.meals?.breakfast?.kcal||0)+(today.meals?.lunch?.kcal||0)+(today.meals?.dinner?.kcal||0) : 0;
+    const burn = today ? (today.exercise?.badminton||0)+(today.exercise?.walking||0) : 0;
+    document.getElementById('intakeDisplay').textContent = intake;
+    document.getElementById('burnDisplay').textContent = burn;
+    document.getElementById('netDisplay').textContent = intake - burn;
 
     renderHistoryTable();
     updateCharts();
@@ -641,8 +694,8 @@
 
     const getMealData = (inputId, calDisplayId) => {
       const input = document.getElementById(inputId);
-      const kcal = input.dataset.kcal ? parseInt(input.dataset.kcal) : (parseInt(document.getElementById(calDisplayId).textContent) || 0);
-      return { name: input.value, kcal };
+      const totalKcal = parseInt(input.dataset.kcal) || 0;
+      return { name: input.value, kcal: totalKcal };
     };
 
     const meals = {
@@ -669,7 +722,7 @@
 
   document.getElementById('saveBtn').addEventListener('click', saveEntry);
 
-  // ---------- HISTORY TABLE (with score) ----------
+  // ---------- HISTORY TABLE (with Non‑Neg score) ----------
   function renderHistoryTable() {
     const tbody = document.querySelector('#historyTable tbody');
     tbody.innerHTML = '';
@@ -684,68 +737,77 @@
   }
 
   // ---------- CHARTS ----------
-  function updateCharts() {
-    const sorted = [...logs].sort((a,b) => a.date.localeCompare(b.date));
-    const labels = sorted.map(l=>l.date);
-    const weights = sorted.map(l=>l.weight);
-    const intakes = sorted.map(l=> (l.meals?.breakfast?.kcal||0)+(l.meals?.lunch?.kcal||0)+(l.meals?.dinner?.kcal||0));
-    const burns = sorted.map(l=> (l.exercise?.badminton||0)+(l.exercise?.walking||0));
+  function getWeekLabel(dateStr) {
+    const d = new Date(dateStr);
+    const month = d.toLocaleString('en-US', { month: 'short' });
+    const onejan = new Date(d.getFullYear(), 0, 1);
+    const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
+    return `${month} W${week}`;
+  }
 
-    // Weight chart
-    if (weightChart) weightChart.destroy();
-    const weightCtx = document.getElementById('weightChart').getContext('2d');
-    weightChart = new Chart(weightCtx, {
-      type: 'line',
+  function updateCharts() {
+    // Weight by week (horizontal bar)
+    const sorted = [...logs].sort((a,b) => a.date.localeCompare(b.date));
+    // Group by week label, take latest weight
+    const weekMap = new Map();
+    sorted.forEach(log => {
+      if (log.weight != null && !isNaN(log.weight)) {
+        const label = getWeekLabel(log.date);
+        weekMap.set(label, log.weight); // latest overwrites previous in same week
+      }
+    });
+    const weekEntries = Array.from(weekMap.entries()).sort((a,b) => a[0].localeCompare(b[0])); // sort by week label
+    const weekLabels = weekEntries.map(e => e[0]);
+    const weekWeights = weekEntries.map(e => e[1]);
+
+    if (weightWeekChart) weightWeekChart.destroy();
+    const ctx1 = document.getElementById('weightWeekChart').getContext('2d');
+    weightWeekChart = new Chart(ctx1, {
+      type: 'bar',
       data: {
-        labels,
+        labels: weekLabels,
         datasets: [{
-          data: weights,
-          borderColor: '#c4ff3d',
-          backgroundColor: 'rgba(196,255,61,0.2)',
-          tension: 0.4,
-          borderWidth: 2,
-          pointBackgroundColor: '#c4ff3d',
-          pointRadius: 3,
-          pointHoverRadius: 6
+          data: weekWeights,
+          backgroundColor: '#c4ff3d',
+          borderRadius: 6,
         }]
       },
       options: {
+        indexAxis: 'y',  // horizontal bars
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: { label: ctx => `${ctx.parsed.y} kg` } }
-        },
+        plugins: { legend: { display: false } },
         scales: {
-          y: {
+          x: {
+            title: { display: true, text: 'Weight (kg)', color: '#9a9aa6' },
             min: 85,
             max: 125,
             ticks: { color: '#9a9aa6', callback: v => v + ' kg' },
             grid: { color: 'rgba(255,255,255,0.05)' }
           },
-          x: {
-            ticks: { color: '#9a9aa6', maxTicksLimit: 8 },
-            grid: { color: 'rgba(255,255,255,0.05)' }
+          y: {
+            ticks: { color: '#9a9aa6' },
+            grid: { display: false }
           }
         }
       }
     });
 
-    // Calorie scatter (intake x, burn y)
-    if (calScatterChart) calScatterChart.destroy();
-    const scatterCtx = document.getElementById('calScatterChart').getContext('2d');
+    // Calorie scatter (intake vs burn)
+    const intakes = sorted.map(l => (l.meals?.breakfast?.kcal||0)+(l.meals?.lunch?.kcal||0)+(l.meals?.dinner?.kcal||0));
+    const burns = sorted.map(l => (l.exercise?.badminton||0)+(l.exercise?.walking||0));
     const scatterData = sorted.map((l, i) => ({ x: intakes[i], y: burns[i], date: l.date }));
 
-    calScatterChart = new Chart(scatterCtx, {
+    if (calScatterChart) calScatterChart.destroy();
+    const ctx2 = document.getElementById('calScatterChart').getContext('2d');
+    calScatterChart = new Chart(ctx2, {
       type: 'scatter',
       data: {
         datasets: [{
-          label: 'Daily Intake vs Burn',
           data: scatterData,
           backgroundColor: '#ff3b6e',
-          borderColor: '#ff3b6e',
           pointRadius: 6,
-          pointHoverRadius: 8,
+          pointHoverRadius: 9,
         }]
       },
       options: {
@@ -756,8 +818,8 @@
           tooltip: {
             callbacks: {
               label: ctx => {
-                const point = scatterData[ctx.dataIndex];
-                return `${point.date}: ${point.x} kcal in, ${point.y} kcal out`;
+                const p = scatterData[ctx.dataIndex];
+                return `${p.date}: ${p.x} kcal in, ${p.y} kcal out`;
               }
             }
           }
@@ -778,7 +840,7 @@
     });
   }
 
-  // Initialize autocomplete for all meals
+  // Setup autocomplete for all meals
   setupAutocomplete('breakfastInput', 'breakfastSuggestions', 'breakfastCalDisplay');
   setupAutocomplete('lunchInput', 'lunchSuggestions', 'lunchCalDisplay');
   setupAutocomplete('dinnerInput', 'dinnerSuggestions', 'dinnerCalDisplay');
