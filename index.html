@@ -68,12 +68,13 @@
     }
     .peach {
       font-size: 2rem;
-      animation: floatPeach 3s ease-in-out infinite;
-      filter: drop-shadow(0 0 8px rgba(196,255,61,0.5));
+      animation: shakePeach 0.5s ease-in-out infinite;
+      display: inline-block;
     }
-    @keyframes floatPeach {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-4px); }
+    @keyframes shakePeach {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-3px) rotate(-3deg); }
+      75% { transform: translateX(3px) rotate(3deg); }
     }
     .streak-badge {
       background: var(--surface2);
@@ -88,12 +89,16 @@
     }
     .flame-icon {
       display: inline-block;
-      animation: flicker 1.5s infinite;
+      animation: flameFlicker 0.15s infinite alternate;
       font-size: 1.2rem;
+      transform-origin: center bottom;
     }
-    @keyframes flicker {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.15); opacity: 0.8; }
+    @keyframes flameFlicker {
+      0% { opacity: 0.8; transform: scaleX(1) skewX(-2deg); }
+      25% { opacity: 1; transform: scaleX(1.05) skewX(2deg); }
+      50% { opacity: 0.9; transform: scaleX(0.98) skewX(-1deg); }
+      75% { opacity: 1; transform: scaleX(1.03) skewX(1deg); }
+      100% { opacity: 0.85; transform: scaleX(1) skewX(0deg); }
     }
 
     /* Tabs */
@@ -276,7 +281,7 @@
       background: var(--surface2);
       border-radius: 20px;
       padding: 20px;
-      height: 320px;
+      height: 300px;
       margin-bottom: 16px;
       position: relative;
     }
@@ -375,8 +380,9 @@
       </div>
     </div>
 
+    <!-- Calories Card -->
     <div class="card">
-      <div class="section-title">Calorie Section</div>
+      <div class="section-title">Calories</div>
       <div class="meal-input-wrap">
         <input type="text" id="breakfastInput" class="meal-input" placeholder="Breakfast (e.g., Dosa, Egg, Caesar Salad)" autocomplete="off">
         <div class="suggestions" id="breakfastSuggestions"></div>
@@ -394,14 +400,18 @@
       </div>
 
       <div style="margin-top:16px;">
-        <div style="display:flex; gap:12px;">
-          <div style="flex:1;">
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:100px;">
             <label style="font-size:0.8rem; color:var(--text2);">🏸 Badminton kcal</label>
             <input type="number" id="badmintonCals" class="weight-input" placeholder="burn" style="width:100%;">
           </div>
-          <div style="flex:1;">
+          <div style="flex:1; min-width:100px;">
             <label style="font-size:0.8rem; color:var(--text2);">🚶 Walking kcal</label>
             <input type="number" id="walkingCals" class="weight-input" placeholder="burn" style="width:100%;">
+          </div>
+          <div style="flex:1; min-width:100px;">
+            <label style="font-size:0.8rem; color:var(--text2);">🏋️ Workout kcal</label>
+            <input type="number" id="workoutCals" class="weight-input" placeholder="burn" style="width:100%;">
           </div>
         </div>
       </div>
@@ -413,8 +423,8 @@
   <!-- TRENDS TAB -->
   <div class="tab-content" id="trendsTab">
     <div class="card">
-      <div class="section-title">⚖️ Weight by Week</div>
-      <div class="chart-box"><canvas id="weightWeekChart"></canvas></div>
+      <div class="section-title">⚖️ Weight Trend (by Month)</div>
+      <div class="chart-box"><canvas id="weightMonthChart"></canvas></div>
       <div class="section-title">🔥 Calorie Intake vs Burn</div>
       <div class="chart-box"><canvas id="calScatterChart"></canvas></div>
     </div>
@@ -426,7 +436,7 @@
       <div class="section-title">Your Logs</div>
       <div class="table-wrap">
         <table id="historyTable">
-          <thead><tr><th>Date</th><th>Weight</th><th>Mood</th><th>Cal In</th><th>Cal Out</th><th>Non‑Neg</th></tr></thead>
+          <thead><tr><th>Date</th><th>Weight</th><th>Mood</th><th>Cal In</th><th>Cal Out</th><th>Non‑Nego</th></tr></thead>
           <tbody></tbody>
         </table>
       </div>
@@ -440,7 +450,6 @@
 (function() {
   // ---------- EXPANDED FOOD DATABASE ----------
   const foodDB = [
-    // South Indian
     { name: "Idli (2 pcs)", kcal: 140 },
     { name: "Dosa (plain)", kcal: 180 },
     { name: "Masala Dosa", kcal: 380 },
@@ -456,7 +465,6 @@
     { name: "Appam", kcal: 120 },
     { name: "Puttu", kcal: 180 },
     { name: "Idiyappam", kcal: 150 },
-    // Global breakfast
     { name: "Egg (boiled)", kcal: 78 },
     { name: "Egg (scrambled)", kcal: 150 },
     { name: "Toast (1 slice)", kcal: 80 },
@@ -466,7 +474,6 @@
     { name: "Pancakes (2)", kcal: 250 },
     { name: "Smoothie", kcal: 180 },
     { name: "Fruit salad", kcal: 120 },
-    // Common lunch/dinner
     { name: "Rice (cooked, 1 cup)", kcal: 200 },
     { name: "Chicken breast (grilled)", kcal: 280 },
     { name: "Salad (Caesar)", kcal: 320 },
@@ -491,7 +498,7 @@
   const STORAGE_KEY = 'thiccLogs';
   let logs = [];
   let todayStr = new Date().toISOString().split('T')[0];
-  let weightWeekChart, calScatterChart;
+  let weightMonthChart, calScatterChart;
 
   function loadLogs() { logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
   function saveLogs() { localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); }
@@ -514,7 +521,7 @@
     const display = document.getElementById(calDisplayId);
     const total = calcMealCalories(input.value);
     display.textContent = total + ' kcal';
-    input.dataset.kcal = total; // store for saving
+    input.dataset.kcal = total;
   }
 
   // Autocomplete (works on last token after comma)
@@ -560,7 +567,6 @@
     input.addEventListener('focus', () => {
       if (input.value.length >= 2) suggestionsBox.style.display = 'block';
     });
-    // initial
     updateMealDisplay(inputId, calDisplayId);
   }
 
@@ -643,10 +649,11 @@
 
     document.getElementById('badmintonCals').value = today?.exercise?.badminton || '';
     document.getElementById('walkingCals').value = today?.exercise?.walking || '';
+    document.getElementById('workoutCals').value = today?.exercise?.workout || '';
 
     // Calorie summary
     const intake = today ? (today.meals?.breakfast?.kcal||0)+(today.meals?.lunch?.kcal||0)+(today.meals?.dinner?.kcal||0) : 0;
-    const burn = today ? (today.exercise?.badminton||0)+(today.exercise?.walking||0) : 0;
+    const burn = today ? (today.exercise?.badminton||0)+(today.exercise?.walking||0)+(today.exercise?.workout||0) : 0;
     document.getElementById('intakeDisplay').textContent = intake;
     document.getElementById('burnDisplay').textContent = burn;
     document.getElementById('netDisplay').textContent = intake - burn;
@@ -706,7 +713,8 @@
 
     const exercise = {
       badminton: parseFloat(document.getElementById('badmintonCals').value) || 0,
-      walking: parseFloat(document.getElementById('walkingCals').value) || 0
+      walking: parseFloat(document.getElementById('walkingCals').value) || 0,
+      workout: parseFloat(document.getElementById('workoutCals').value) || 0
     };
 
     const entry = { date: todayStr, checklist, waterCups: water, weight, mood, meals, exercise };
@@ -722,14 +730,14 @@
 
   document.getElementById('saveBtn').addEventListener('click', saveEntry);
 
-  // ---------- HISTORY TABLE (with Non‑Neg score) ----------
+  // ---------- HISTORY TABLE (Non‑Nego score) ----------
   function renderHistoryTable() {
     const tbody = document.querySelector('#historyTable tbody');
     tbody.innerHTML = '';
     [...logs].sort((a,b) => b.date.localeCompare(a.date)).slice(0,30).forEach(log => {
       const row = tbody.insertRow();
       const calIn = (log.meals?.breakfast?.kcal||0)+(log.meals?.lunch?.kcal||0)+(log.meals?.dinner?.kcal||0);
-      const calOut = (log.exercise?.badminton||0)+(log.exercise?.walking||0);
+      const calOut = (log.exercise?.badminton||0)+(log.exercise?.walking||0)+(log.exercise?.workout||0);
       const checklist = log.checklist || {};
       const score = Object.values(checklist).filter(v => v === true).length;
       row.innerHTML = `<td>${log.date}</td><td>${log.weight||'-'}</td><td>${log.mood||'-'}</td><td>${calIn}</td><td>${calOut}</td><td>${score}/6</td>`;
@@ -737,57 +745,56 @@
   }
 
   // ---------- CHARTS ----------
-  function getWeekLabel(dateStr) {
+  function getMonthLabel(dateStr) {
     const d = new Date(dateStr);
-    const month = d.toLocaleString('en-US', { month: 'short' });
-    const onejan = new Date(d.getFullYear(), 0, 1);
-    const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
-    return `${month} W${week}`;
+    return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
   }
 
   function updateCharts() {
-    // Weight by week (horizontal bar)
     const sorted = [...logs].sort((a,b) => a.date.localeCompare(b.date));
-    // Group by week label, take latest weight
-    const weekMap = new Map();
+    // Group by month, latest weight
+    const monthMap = new Map();
     sorted.forEach(log => {
       if (log.weight != null && !isNaN(log.weight)) {
-        const label = getWeekLabel(log.date);
-        weekMap.set(label, log.weight); // latest overwrites previous in same week
+        const label = getMonthLabel(log.date);
+        monthMap.set(label, log.weight);
       }
     });
-    const weekEntries = Array.from(weekMap.entries()).sort((a,b) => a[0].localeCompare(b[0])); // sort by week label
-    const weekLabels = weekEntries.map(e => e[0]);
-    const weekWeights = weekEntries.map(e => e[1]);
+    const monthEntries = Array.from(monthMap.entries()); // already in order because dates sorted
+    const monthLabels = monthEntries.map(e => e[0]);
+    const monthWeights = monthEntries.map(e => e[1]);
 
-    if (weightWeekChart) weightWeekChart.destroy();
-    const ctx1 = document.getElementById('weightWeekChart').getContext('2d');
-    weightWeekChart = new Chart(ctx1, {
-      type: 'bar',
+    if (weightMonthChart) weightMonthChart.destroy();
+    const ctx1 = document.getElementById('weightMonthChart').getContext('2d');
+    weightMonthChart = new Chart(ctx1, {
+      type: 'line',
       data: {
-        labels: weekLabels,
+        labels: monthLabels,
         datasets: [{
-          data: weekWeights,
-          backgroundColor: '#c4ff3d',
-          borderRadius: 6,
+          data: monthWeights,
+          borderColor: '#c4ff3d',
+          backgroundColor: 'rgba(196,255,61,0.2)',
+          tension: 0.3,
+          pointBackgroundColor: '#c4ff3d',
+          pointRadius: 5,
+          pointHoverRadius: 8,
         }]
       },
       options: {
-        indexAxis: 'y',  // horizontal bars
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          x: {
+          y: {
             title: { display: true, text: 'Weight (kg)', color: '#9a9aa6' },
             min: 85,
             max: 125,
             ticks: { color: '#9a9aa6', callback: v => v + ' kg' },
             grid: { color: 'rgba(255,255,255,0.05)' }
           },
-          y: {
+          x: {
             ticks: { color: '#9a9aa6' },
-            grid: { display: false }
+            grid: { color: 'rgba(255,255,255,0.05)' }
           }
         }
       }
@@ -795,7 +802,7 @@
 
     // Calorie scatter (intake vs burn)
     const intakes = sorted.map(l => (l.meals?.breakfast?.kcal||0)+(l.meals?.lunch?.kcal||0)+(l.meals?.dinner?.kcal||0));
-    const burns = sorted.map(l => (l.exercise?.badminton||0)+(l.exercise?.walking||0));
+    const burns = sorted.map(l => (l.exercise?.badminton||0)+(l.exercise?.walking||0)+(l.exercise?.workout||0));
     const scatterData = sorted.map((l, i) => ({ x: intakes[i], y: burns[i], date: l.date }));
 
     if (calScatterChart) calScatterChart.destroy();
