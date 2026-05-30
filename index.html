@@ -35,7 +35,7 @@
       padding-top: 100px;
     }
 
-    /* Sticky header */
+    /* Header */
     .header {
       position: fixed;
       top: 0;
@@ -103,6 +103,7 @@
       50% { transform: scale(1.1); opacity: 1; }
     }
 
+    /* Tabs */
     .tabs {
       display: flex;
       gap: 8px;
@@ -204,21 +205,22 @@
     }
     .check-item.checked .check-mark { opacity:1; transform: scale(1); }
 
-    /* Hydration – larger touch targets, always centered */
+    /* Hydration - single row, no wrap */
     .water-cups {
       display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
+      gap: 8px;
+      flex-wrap: nowrap;           /* force single row */
       justify-content: center;
+      align-items: center;
     }
     .cup {
-      font-size: 2.4rem;
+      font-size: 2.2rem;
       cursor: pointer;
       filter: grayscale(1);
       opacity:0.5;
       transition: all 0.3s;
-      padding: 4px;
       line-height: 1;
+      padding: 2px;
     }
     .cup.filled {
       filter: grayscale(0);
@@ -232,13 +234,13 @@
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255,255,255,0.15);
       border-radius: 50px;
-      padding: 14px 20px;
+      padding: 14px 12px;
       color: #fff;
-      font-size: 1.2rem;
+      font-size: 1rem;
       font-weight: 600;
       text-align: center;
       outline: none;
-      width: 100%;               /* expand inside its container */
+      width: 100%;
     }
     .weight-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); }
     .mood-selector { display: flex; gap: 8px; }
@@ -343,31 +345,38 @@
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
 
-    /* Exercise columns – equal width, centered */
+    /* Exercise columns */
     .exercise-row {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
       margin-top: 16px;
     }
     .exercise-col {
-      flex: 1 1 100px;
+      flex: 1 1 0;
+      min-width: 80px;
       text-align: center;
     }
     .exercise-col label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text2);
       display: block;
       margin-bottom: 6px;
-    }
-    .exercise-col .weight-input {
-      width: 100%;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    /* Calorie totals centered under meal inputs */
+    /* Calorie totals centered */
     .calorie-total {
       margin-top: 8px;
       text-align: center;
+    }
+
+    /* Energy icons */
+    .energy-icon {
+      font-size: 1.5rem;
+      display: block;
+      margin-bottom: 4px;
     }
   </style>
 </head>
@@ -409,7 +418,7 @@
         <div class="check-item" data-key="mbaStudy"><div class="check-box"><span class="check-mark">✓</span></div> MBA Study</div>
       </div>
 
-      <!-- Hydration – now with larger touch-friendly cups -->
+      <!-- Hydration - single row -->
       <div style="margin-top:20px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
           <span style="font-weight:700;">💧 Hydration</span>
@@ -434,13 +443,25 @@
       </div>
     </div>
 
-    <!-- Calorie summary card -->
+    <!-- Calorie summary card with icons -->
     <div class="card">
       <div class="section-title">Today's Energy</div>
       <div style="display:flex; justify-content:space-around; text-align:center;">
-        <div><div style="font-size:1.5rem; font-weight:700;" id="intakeDisplay">0</div><div style="color:var(--text2);">kcal in</div></div>
-        <div><div style="font-size:1.5rem; font-weight:700;" id="burnDisplay">0</div><div style="color:var(--text2);">kcal out</div></div>
-        <div><div style="font-size:1.5rem; font-weight:700;" id="netDisplay">0</div><div style="color:var(--text2);">net</div></div>
+        <div>
+          <div class="energy-icon">🥗</div>
+          <div style="font-size:1.5rem; font-weight:700;" id="intakeDisplay">0</div>
+          <div style="color:var(--text2);">kcal in</div>
+        </div>
+        <div>
+          <div class="energy-icon">🔥</div>
+          <div style="font-size:1.5rem; font-weight:700;" id="burnDisplay">0</div>
+          <div style="color:var(--text2);">kcal out</div>
+        </div>
+        <div>
+          <div class="energy-icon">⚖️</div>
+          <div style="font-size:1.5rem; font-weight:700;" id="netDisplay">0</div>
+          <div style="color:var(--text2);">net</div>
+        </div>
       </div>
     </div>
 
@@ -463,19 +484,19 @@
         <div class="calorie-total"><span style="color:var(--accent);" id="dinnerCalDisplay">0 kcal</span></div>
       </div>
 
-      <!-- Exercise row – perfectly aligned for mobile -->
+      <!-- Exercise row – rebranded Badminton to Shuttle -->
       <div class="exercise-row">
         <div class="exercise-col">
-          <label>🏸 Badminton kcal</label>
-          <input type="number" id="badmintonCals" class="weight-input" placeholder="burn">
+          <label>🏸 Shuttle</label>
+          <input type="number" id="badmintonCals" class="weight-input" placeholder="kcal">
         </div>
         <div class="exercise-col">
-          <label>🚶 Walking kcal</label>
-          <input type="number" id="walkingCals" class="weight-input" placeholder="burn">
+          <label>🚶 Walking</label>
+          <input type="number" id="walkingCals" class="weight-input" placeholder="kcal">
         </div>
         <div class="exercise-col">
-          <label>🏋️ Workout kcal</label>
-          <input type="number" id="workoutCals" class="weight-input" placeholder="burn">
+          <label>🏋️ Workout</label>
+          <input type="number" id="workoutCals" class="weight-input" placeholder="kcal">
         </div>
       </div>
 
