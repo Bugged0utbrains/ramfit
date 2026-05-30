@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>THICC 🍑</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <title>THICC 🍑 · genz fitness</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -204,9 +204,27 @@
     }
     .check-item.checked .check-mark { opacity:1; transform: scale(1); }
 
-    .water-cups { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-    .cup { font-size: 2.2rem; cursor: pointer; filter: grayscale(1); opacity:0.4; transition: all 0.3s; }
-    .cup.filled { filter: grayscale(0); opacity:1; transform: scale(1.2); }
+    /* Hydration – larger touch targets, always centered */
+    .water-cups {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .cup {
+      font-size: 2.4rem;
+      cursor: pointer;
+      filter: grayscale(1);
+      opacity:0.5;
+      transition: all 0.3s;
+      padding: 4px;
+      line-height: 1;
+    }
+    .cup.filled {
+      filter: grayscale(0);
+      opacity:1;
+      transform: scale(1.15);
+    }
 
     .input-group { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
     .weight-input {
@@ -218,9 +236,9 @@
       color: #fff;
       font-size: 1.2rem;
       font-weight: 600;
-      width: 130px;
       text-align: center;
       outline: none;
+      width: 100%;               /* expand inside its container */
     }
     .weight-input:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); }
     .mood-selector { display: flex; gap: 8px; }
@@ -325,12 +343,28 @@
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
 
-    /* Additional centering */
-    .exercise-group {
-      flex: 1;
-      min-width: 100px;
+    /* Exercise columns – equal width, centered */
+    .exercise-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .exercise-col {
+      flex: 1 1 100px;
       text-align: center;
     }
+    .exercise-col label {
+      font-size: 0.8rem;
+      color: var(--text2);
+      display: block;
+      margin-bottom: 6px;
+    }
+    .exercise-col .weight-input {
+      width: 100%;
+    }
+
+    /* Calorie totals centered under meal inputs */
     .calorie-total {
       margin-top: 8px;
       text-align: center;
@@ -375,6 +409,7 @@
         <div class="check-item" data-key="mbaStudy"><div class="check-box"><span class="check-mark">✓</span></div> MBA Study</div>
       </div>
 
+      <!-- Hydration – now with larger touch-friendly cups -->
       <div style="margin-top:20px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
           <span style="font-weight:700;">💧 Hydration</span>
@@ -385,9 +420,10 @@
         </div>
       </div>
 
+      <!-- Weight & Mood -->
       <div style="margin-top:20px;">
         <div class="input-group">
-          <input type="number" id="weightInput" class="weight-input" placeholder="Weight kg" step="0.1">
+          <input type="number" id="weightInput" class="weight-input" placeholder="Weight kg" step="0.1" style="width:130px;">
           <div class="mood-selector" id="moodSelector">
             <button class="mood-btn" data-mood="Terrible">😩</button>
             <button class="mood-btn" data-mood="Okay">😐</button>
@@ -427,18 +463,19 @@
         <div class="calorie-total"><span style="color:var(--accent);" id="dinnerCalDisplay">0 kcal</span></div>
       </div>
 
-      <div style="margin-top:16px; display:flex; gap:12px; flex-wrap:wrap;">
-        <div class="exercise-group">
-          <label style="font-size:0.8rem; color:var(--text2);">🏸 Badminton kcal</label>
-          <input type="number" id="badmintonCals" class="weight-input" placeholder="burn" style="width:100%;">
+      <!-- Exercise row – perfectly aligned for mobile -->
+      <div class="exercise-row">
+        <div class="exercise-col">
+          <label>🏸 Badminton kcal</label>
+          <input type="number" id="badmintonCals" class="weight-input" placeholder="burn">
         </div>
-        <div class="exercise-group">
-          <label style="font-size:0.8rem; color:var(--text2);">🚶 Walking kcal</label>
-          <input type="number" id="walkingCals" class="weight-input" placeholder="burn" style="width:100%;">
+        <div class="exercise-col">
+          <label>🚶 Walking kcal</label>
+          <input type="number" id="walkingCals" class="weight-input" placeholder="burn">
         </div>
-        <div class="exercise-group">
-          <label style="font-size:0.8rem; color:var(--text2);">🏋️ Workout kcal</label>
-          <input type="number" id="workoutCals" class="weight-input" placeholder="burn" style="width:100%;">
+        <div class="exercise-col">
+          <label>🏋️ Workout kcal</label>
+          <input type="number" id="workoutCals" class="weight-input" placeholder="burn">
         </div>
       </div>
 
@@ -665,9 +702,8 @@
 
     document.getElementById('saveBtn').addEventListener('click', saveEntry);
 
-    // Helper to format date as DD/MM/YY
     function formatDateDDMMYY(dateStr) {
-      const parts = dateStr.split('-'); // YYYY-MM-DD
+      const parts = dateStr.split('-');
       if (parts.length !== 3) return dateStr;
       const yy = parts[0].slice(-2);
       return `${parts[2]}/${parts[1]}/${yy}`;
