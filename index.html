@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <title>THICC 🍑</title>
+  <title>THICC 🍑 · genz fitness</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* ---------- All the same styles as before (dark glass, centered hydration, etc.) ---------- */
     :root {
       --bg: #0a0a0b;
       --glass-bg: rgba(28, 28, 30, 0.7);
@@ -31,7 +32,7 @@
       min-height: 100vh;
     }
 
-    /* ---------- LOGIN SCREEN ---------- */
+    /* Login screen */
     .login-screen {
       position: fixed;
       inset: 0;
@@ -120,7 +121,7 @@
     }
     .magic-btn:active { transform: scale(0.96); }
 
-    /* ---------- MAIN APP (hidden until login) ---------- */
+    /* Main app */
     .app {
       max-width: 600px;
       width: 100%;
@@ -627,7 +628,7 @@
   <script>
     (function() {
       // ---------- SUPABASE CONFIG ----------
-      const SUPABASE_URL = 'https://uwqzmvseomzyjxbhyrum.subase.co';         // 👈 replace
+      const SUPABASE_URL = 'https://uwqzmvseomzyjxbhyrum.supabase.co';         // 👈 replace
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cXptdnNlb216eWp4Ymh5cnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjA2MDksImV4cCI6MjA5NTc5NjYwOX0.G3JFHm8i-DZL3vIOqo9ljEn_QQVDZQEjXCl_lbc7OaE'; // 👈 replace
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -662,23 +663,29 @@
       let weightMonthChart, calScatterChart;
       let currentUser = null;
 
-      // ---------- AUTH ----------
+      // ---------- AUTH (with improved error handling) ----------
       async function sendMagicLink() {
         const email = loginEmail.value.trim();
         if (!email) {
           alert('Please enter your email address.');
           return;
         }
-        const { error } = await supabase.auth.signInWithOtp({
-          email,
-          options: {
-            emailRedirectTo: window.location.href  // redirect back to this page after clicking link
+        try {
+          const { error } = await supabase.auth.signInWithOtp({
+            email,
+            options: {
+              emailRedirectTo: window.location.href
+            }
+          });
+          if (error) {
+            alert('Error: ' + error.message);
+            console.error('Supabase error:', error);
+          } else {
+            alert('Magic link sent! Check your inbox (and spam folder).');
           }
-        });
-        if (error) {
-          alert('Error sending magic link: ' + error.message);
-        } else {
-          alert('Magic link sent! Check your inbox (and spam folder).');
+        } catch (err) {
+          alert('Network error – are you using a live server (https/localhost)? Check console for details.');
+          console.error('Fetch error:', err);
         }
       }
       sendMagicLinkBtn.addEventListener('click', sendMagicLink);
@@ -958,13 +965,9 @@
       setupAutocomplete('lunchInput', 'lunchSuggestions', 'lunchCalDisplay');
       setupAutocomplete('dinnerInput', 'dinnerSuggestions', 'dinnerCalDisplay');
 
-      // Check for existing session on page load (in case of magic link redirect)
+      // Check for existing session on page load
       supabase.auth.getSession().then(({ data: { session } }) => {
-        // The onAuthStateChange will fire anyway, so this is just a safety net
-        if (session?.user) {
-          // The observer will handle UI update
-        } else {
-          // Not logged in, login screen is already visible
+        if (!session) {
           loginScreen.classList.remove('hidden');
         }
       });
