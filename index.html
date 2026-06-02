@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <title>THICC 🍑</title>
+  <title>THICC 🍑 · genz fitness</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --header-height: 68px;          /* fixed header height */
+      --header-height: 68px;
       --bg: #0a0a0b;
       --glass-bg: rgba(28, 28, 30, 0.7);
       --glass-bg2: rgba(44, 44, 46, 0.5);
@@ -32,7 +32,7 @@
       min-height: 100vh;
     }
 
-    /* ---------- LOGIN SCREEN (unchanged) ---------- */
+    /* Login screen (unchanged) */
     .login-screen {
       position: fixed;
       inset: 0;
@@ -44,10 +44,7 @@
       backdrop-filter: blur(10px);
       transition: opacity 0.5s ease, visibility 0.5s ease;
     }
-    .login-screen.hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
+    .login-screen.hidden { opacity: 0; visibility: hidden; }
     .login-card {
       background: var(--glass-bg);
       backdrop-filter: blur(40px);
@@ -121,17 +118,17 @@
     }
     .magic-btn:active { transform: scale(0.96); }
 
-    /* ---------- MAIN APP (hidden until login) ---------- */
+    /* Main app */
     .app {
       max-width: 600px;
       width: 100%;
-      padding-top: var(--header-height);   /* matches header height */
+      padding-top: var(--header-height);
       display: none;
       padding-bottom: 40px;
     }
     .app.visible { display: block; }
 
-    /* ---------- HEADER (fixed, now with explicit height) ---------- */
+    /* Header */
     .header {
       position: fixed;
       top: 0;
@@ -139,7 +136,7 @@
       transform: translateX(-50%);
       width: calc(100% - 40px);
       max-width: 600px;
-      height: var(--header-height);          /* fixed height */
+      height: var(--header-height);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -147,7 +144,7 @@
       backdrop-filter: blur(30px);
       -webkit-backdrop-filter: blur(30px);
       border-radius: 0 0 28px 28px;
-      padding: 0 24px;                      /* horizontal padding only */
+      padding: 0 24px;
       z-index: 100;
       border: 1px solid rgba(255,255,255,0.1);
       border-top: none;
@@ -195,7 +192,7 @@
       50% { transform: scale(1.1); opacity: 1; }
     }
 
-    /* ---------- TABS (sticky, exactly below header) ---------- */
+    /* Tabs (sticky, exactly below header) */
     .tabs {
       display: flex;
       gap: 8px;
@@ -206,7 +203,7 @@
       border-radius: 40px;
       padding: 6px;
       position: sticky;
-      top: var(--header-height);      /* right below header */
+      top: var(--header-height);
       z-index: 90;
       border: 1px solid rgba(255,255,255,0.1);
     }
@@ -348,7 +345,6 @@
     }
     .mood-btn.active { background: var(--accent); opacity:1; color:#000; }
 
-    /* Meal row with two fields */
     .meal-row {
       display: flex;
       gap: 10px;
@@ -470,7 +466,6 @@
 
   <!-- MAIN APP (hidden until login) -->
   <div class="app" id="mainApp">
-    <!-- HEADER -->
     <div class="header">
       <div class="logo">THICC<span class="peach">🍑</span></div>
       <div class="streak-badge">
@@ -478,7 +473,6 @@
       </div>
     </div>
 
-    <!-- TABS (perfectly aligned now) -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="today">💪 Today</button>
       <button class="tab-btn" data-tab="trends">📈 Trends</button>
@@ -531,7 +525,7 @@
         </div>
       </div>
 
-      <!-- Energy summary (unchanged) -->
+      <!-- Energy summary -->
       <div class="card">
         <div class="section-title">Today's Energy</div>
         <div style="display:flex; justify-content:space-around; text-align:center;">
@@ -553,10 +547,9 @@
         </div>
       </div>
 
-      <!-- Calories Card (manual kcal inputs) -->
+      <!-- Calories Card -->
       <div class="card">
         <div class="section-title">Calories</div>
-
         <div class="meal-row">
           <input type="text" id="breakfastName" placeholder="Breakfast food">
           <input type="number" id="breakfastKcal" placeholder="kcal" step="1">
@@ -617,16 +610,16 @@
 
   <script>
     (function() {
-      // ---------- SUPABASE CONFIG (replace with your own) ----------
-      const SUPABASE_URL = 'https://uwqzmvseomzyjxbhyrum.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cXptdnNlb216eWp4Ymh5cnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjA2MDksImV4cCI6MjA5NTc5NjYwOX0.G3JFHm8i-DZL3vIOqo9ljEn_QQVDZQEjXCl_lbc7OaE';
+      // ---------- SUPABASE CONFIG ----------
+      const SUPABASE_URL = 'https://uwqzmvseomzyjxbhyrum.supabase.co';         // 👈 replace
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cXptdnNlb216eWp4Ymh5cnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjA2MDksImV4cCI6MjA5NTc5NjYwOX0.G3JFHm8i-DZL3vIOqo9ljEn_QQVDZQEjXCl_lbc7OaE'; // 👈 replace
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      // ---------- GLOBAL STATE ----------
       let logs = [];
       let todayStr = new Date().toISOString().split('T')[0];
       let weightMonthChart, calScatterChart;
       let currentUser = null;
+      let todayDraft = null;            // ✅ draft holder
 
       const loginScreen = document.getElementById('loginScreen');
       const mainApp = document.getElementById('mainApp');
@@ -667,6 +660,7 @@
           loginScreen.classList.remove('hidden');
           mainApp.classList.remove('visible');
           logs = [];
+          todayDraft = null;
           updateAllUI();
         }
       });
@@ -687,6 +681,141 @@
         }
       }
 
+      // ---------- DRAFT HELPERS ----------
+      function saveDraft() {
+        const checklist = {};
+        document.querySelectorAll('.check-item').forEach(item => {
+          checklist[item.dataset.key] = item.classList.contains('checked');
+        });
+        const water = document.querySelectorAll('.cup.filled').length;
+        const weight = document.getElementById('weightInput').value;
+        const mood = document.querySelector('.mood-btn.active')?.dataset.mood || null;
+
+        const meals = {
+          breakfast: {
+            name: document.getElementById('breakfastName').value,
+            kcal: document.getElementById('breakfastKcal').value
+          },
+          lunch: {
+            name: document.getElementById('lunchName').value,
+            kcal: document.getElementById('lunchKcal').value
+          },
+          dinner: {
+            name: document.getElementById('dinnerName').value,
+            kcal: document.getElementById('dinnerKcal').value
+          }
+        };
+        const exercise = {
+          badminton: document.getElementById('badmintonCals').value,
+          walking: document.getElementById('walkingCals').value,
+          workout: document.getElementById('workoutCals').value
+        };
+        todayDraft = { checklist, water, weight, mood, meals, exercise };
+      }
+
+      function restoreDraft() {
+        if (!todayDraft) return false;
+        const d = todayDraft;
+
+        // Checklist
+        document.querySelectorAll('.check-item').forEach(item => {
+          if (d.checklist[item.dataset.key]) item.classList.add('checked');
+          else item.classList.remove('checked');
+        });
+
+        // Water cups
+        const cups = parseInt(d.water) || 0;
+        document.querySelectorAll('.cup').forEach((cup, i) => cup.classList.toggle('filled', i < cups));
+        document.getElementById('waterTotal').textContent = cups*500 + ' / 3500 ml';
+
+        // Weight & mood
+        document.getElementById('weightInput').value = d.weight || '';
+        document.querySelectorAll('.mood-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.mood === d.mood);
+        });
+
+        // Meals
+        document.getElementById('breakfastName').value = d.meals.breakfast.name || '';
+        document.getElementById('breakfastKcal').value = d.meals.breakfast.kcal || '';
+        document.getElementById('lunchName').value = d.meals.lunch.name || '';
+        document.getElementById('lunchKcal').value = d.meals.lunch.kcal || '';
+        document.getElementById('dinnerName').value = d.meals.dinner.name || '';
+        document.getElementById('dinnerKcal').value = d.meals.dinner.kcal || '';
+
+        // Exercise
+        document.getElementById('badmintonCals').value = d.exercise.badminton || '';
+        document.getElementById('walkingCals').value = d.exercise.walking || '';
+        document.getElementById('workoutCals').value = d.exercise.workout || '';
+
+        // Update energy display
+        const intake = (parseInt(d.meals.breakfast.kcal)||0) + (parseInt(d.meals.lunch.kcal)||0) + (parseInt(d.meals.dinner.kcal)||0);
+        const burn = (parseFloat(d.exercise.badminton)||0) + (parseFloat(d.exercise.walking)||0) + (parseFloat(d.exercise.workout)||0);
+        document.getElementById('intakeDisplay').textContent = intake;
+        document.getElementById('burnDisplay').textContent = burn;
+        document.getElementById('netDisplay').textContent = intake - burn;
+
+        return true;
+      }
+
+      // ---------- TAB SWITCHING WITH DRAFT ----------
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const currentActive = document.querySelector('.tab-btn.active');
+          const currentTab = currentActive ? currentActive.dataset.tab : null;
+
+          // If leaving Today tab, save draft
+          if (currentTab === 'today') {
+            saveDraft();
+          }
+
+          // Switch active button
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
+
+          // If switching to Today, restore draft (if exists), otherwise fall back to log data
+          if (btn.dataset.tab === 'today') {
+            const restored = restoreDraft();
+            if (!restored) {
+              // No draft – load saved log from today
+              updateTodayInputsFromLog();
+            }
+          }
+
+          if (btn.dataset.tab === 'trends') updateCharts();
+        });
+      });
+
+      function updateTodayInputsFromLog() {
+        // Load the logged data for today without draft
+        const today = logs.find(l => l.date === todayStr);
+        // checklist
+        document.querySelectorAll('.check-item').forEach(item => {
+          if (today?.checklist?.[item.dataset.key]) item.classList.add('checked');
+          else item.classList.remove('checked');
+        });
+        const cups = today?.waterCups || 0;
+        document.querySelectorAll('.cup').forEach((cup, i) => cup.classList.toggle('filled', i < cups));
+        document.getElementById('waterTotal').textContent = cups*500 + ' / 3500 ml';
+        document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mood === today?.mood));
+        document.getElementById('weightInput').value = today?.weight || '';
+        document.getElementById('breakfastName').value = today?.meals?.breakfast?.name || '';
+        document.getElementById('breakfastKcal').value = today?.meals?.breakfast?.kcal || '';
+        document.getElementById('lunchName').value = today?.meals?.lunch?.name || '';
+        document.getElementById('lunchKcal').value = today?.meals?.lunch?.kcal || '';
+        document.getElementById('dinnerName').value = today?.meals?.dinner?.name || '';
+        document.getElementById('dinnerKcal').value = today?.meals?.dinner?.kcal || '';
+        document.getElementById('badmintonCals').value = today?.exercise?.badminton || '';
+        document.getElementById('walkingCals').value = today?.exercise?.walking || '';
+        document.getElementById('workoutCals').value = today?.exercise?.workout || '';
+        const intake = today ? (today.meals?.breakfast?.kcal||0)+(today.meals?.lunch?.kcal||0)+(today.meals?.dinner?.kcal||0) : 0;
+        const burn = today ? (today.exercise?.badminton||0)+(today.exercise?.walking||0)+(today.exercise?.workout||0) : 0;
+        document.getElementById('intakeDisplay').textContent = intake;
+        document.getElementById('burnDisplay').textContent = burn;
+        document.getElementById('netDisplay').textContent = intake - burn;
+      }
+
       // ---------- SAVE LOG ----------
       async function saveLogToSupabase(entry) {
         if (!currentUser) return;
@@ -698,6 +827,7 @@
           const toast = document.getElementById('toast');
           toast.classList.add('show');
           setTimeout(() => toast.classList.remove('show'), 2000);
+          todayDraft = null;             // clear draft after saving
           fetchLogs();
         } else {
           console.error('Save error:', error);
@@ -705,47 +835,7 @@
         }
       }
 
-      // ---------- HELPERS (manual kcal) ----------
-      function getMealData(nameId, kcalId) {
-        const name = document.getElementById(nameId).value.trim();
-        const kcal = parseInt(document.getElementById(kcalId).value) || 0;
-        return { name, kcal };
-      }
-
-      function setMealData(nameId, kcalId, name, kcal) {
-        document.getElementById(nameId).value = name || '';
-        document.getElementById(kcalId).value = kcal || '';
-      }
-
-      // Tab switching
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-          document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
-          if (btn.dataset.tab === 'trends') updateCharts();
-        });
-      });
-
-      // Checklist, water, mood
-      document.querySelectorAll('.check-item').forEach(item => item.addEventListener('click', () => item.classList.toggle('checked')));
-      document.querySelectorAll('.cup').forEach((cup, i) => {
-        cup.addEventListener('click', () => {
-          const filled = cup.classList.contains('filled');
-          document.querySelectorAll('.cup').forEach((c, j) => {
-            if (!filled && j <= i) c.classList.add('filled');
-            if (filled && j >= i) c.classList.remove('filled');
-          });
-          document.getElementById('waterTotal').textContent = document.querySelectorAll('.cup.filled').length*500 + ' / 3500 ml';
-        });
-      });
-      document.querySelectorAll('.mood-btn').forEach(btn => btn.addEventListener('click', () => {
-        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-      }));
-
-      // Save entry
+      // ---------- SAVE ENTRY ----------
       function saveEntry() {
         if (!currentUser) { alert("Please sign in first."); return; }
         const checklist = {};
@@ -755,23 +845,30 @@
         const mood = document.querySelector('.mood-btn.active')?.dataset.mood || null;
 
         const meals = {
-          breakfast: getMealData('breakfastName', 'breakfastKcal'),
-          lunch: getMealData('lunchName', 'lunchKcal'),
-          dinner: getMealData('dinnerName', 'dinnerKcal')
+          breakfast: {
+            name: document.getElementById('breakfastName').value.trim(),
+            kcal: parseInt(document.getElementById('breakfastKcal').value) || 0
+          },
+          lunch: {
+            name: document.getElementById('lunchName').value.trim(),
+            kcal: parseInt(document.getElementById('lunchKcal').value) || 0
+          },
+          dinner: {
+            name: document.getElementById('dinnerName').value.trim(),
+            kcal: parseInt(document.getElementById('dinnerKcal').value) || 0
+          }
         };
-
         const exercise = {
           badminton: parseFloat(document.getElementById('badmintonCals').value) || 0,
           walking: parseFloat(document.getElementById('walkingCals').value) || 0,
           workout: parseFloat(document.getElementById('workoutCals').value) || 0
         };
-
         const entry = { date: todayStr, checklist, waterCups: water, weight, mood, meals, exercise };
         saveLogToSupabase(entry);
       }
       document.getElementById('saveBtn').addEventListener('click', saveEntry);
 
-      // ---------- UPDATE UI ----------
+      // ---------- UPDATE UI (for stats, history, charts) ----------
       function updateAllUI() {
         const today = logs.find(l => l.date === todayStr);
         if (currentUser) streakCountSpan.textContent = calculateStreak();
@@ -783,28 +880,10 @@
         document.getElementById('daysLoggedDisplay').textContent = new Set(logs.map(l=>l.date)).size;
         const avg = calcAvgKgWeek(); document.getElementById('avgKgWeekDisplay').textContent = avg !== null ? avg.toFixed(1) : '--';
 
-        document.querySelectorAll('.check-item').forEach(item => {
-          if (today?.checklist?.[item.dataset.key]) item.classList.add('checked'); else item.classList.remove('checked');
-        });
-        const cups = today?.waterCups || 0;
-        document.querySelectorAll('.cup').forEach((cup, i) => cup.classList.toggle('filled', i < cups));
-        document.getElementById('waterTotal').textContent = cups*500 + ' / 3500 ml';
-        document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mood === today?.mood));
-        document.getElementById('weightInput').value = today?.weight || '';
-
-        setMealData('breakfastName', 'breakfastKcal', today?.meals?.breakfast?.name, today?.meals?.breakfast?.kcal);
-        setMealData('lunchName', 'lunchKcal', today?.meals?.lunch?.name, today?.meals?.lunch?.kcal);
-        setMealData('dinnerName', 'dinnerKcal', today?.meals?.dinner?.name, today?.meals?.dinner?.kcal);
-
-        document.getElementById('badmintonCals').value = today?.exercise?.badminton || '';
-        document.getElementById('walkingCals').value = today?.exercise?.walking || '';
-        document.getElementById('workoutCals').value = today?.exercise?.workout || '';
-
-        const intake = today ? (today.meals?.breakfast?.kcal||0)+(today.meals?.lunch?.kcal||0)+(today.meals?.dinner?.kcal||0) : 0;
-        const burn = today ? (today.exercise?.badminton||0)+(today.exercise?.walking||0)+(today.exercise?.workout||0) : 0;
-        document.getElementById('intakeDisplay').textContent = intake;
-        document.getElementById('burnDisplay').textContent = burn;
-        document.getElementById('netDisplay').textContent = intake - burn;
+        // If we have a draft, don't overwrite Today inputs – they're already handled by restoreDraft/updateTodayInputsFromLog
+        if (!todayDraft) {
+          updateTodayInputsFromLog();
+        }
 
         renderHistoryTable();
         if (currentUser) updateCharts();
@@ -884,7 +963,7 @@
         });
       }
 
-      // Check for existing session on page load
+      // ---------- INITIALISE ----------
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (!session) {
           loginScreen.classList.remove('hidden');
