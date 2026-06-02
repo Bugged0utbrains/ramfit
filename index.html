@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
+      --header-height: 68px;          /* fixed header height */
       --bg: #0a0a0b;
       --glass-bg: rgba(28, 28, 30, 0.7);
       --glass-bg2: rgba(44, 44, 46, 0.5);
@@ -31,7 +32,7 @@
       min-height: 100vh;
     }
 
-    /* Login screen */
+    /* ---------- LOGIN SCREEN (unchanged) ---------- */
     .login-screen {
       position: fixed;
       inset: 0;
@@ -120,17 +121,17 @@
     }
     .magic-btn:active { transform: scale(0.96); }
 
-    /* Main app */
+    /* ---------- MAIN APP (hidden until login) ---------- */
     .app {
       max-width: 600px;
       width: 100%;
-      padding-top: 100px;
+      padding-top: var(--header-height);   /* matches header height */
       display: none;
       padding-bottom: 40px;
     }
     .app.visible { display: block; }
 
-    /* Header (sticky) */
+    /* ---------- HEADER (fixed, now with explicit height) ---------- */
     .header {
       position: fixed;
       top: 0;
@@ -138,6 +139,7 @@
       transform: translateX(-50%);
       width: calc(100% - 40px);
       max-width: 600px;
+      height: var(--header-height);          /* fixed height */
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -145,7 +147,7 @@
       backdrop-filter: blur(30px);
       -webkit-backdrop-filter: blur(30px);
       border-radius: 0 0 28px 28px;
-      padding: 16px 24px;
+      padding: 0 24px;                      /* horizontal padding only */
       z-index: 100;
       border: 1px solid rgba(255,255,255,0.1);
       border-top: none;
@@ -193,7 +195,7 @@
       50% { transform: scale(1.1); opacity: 1; }
     }
 
-    /* Tabs – fixed drop issue */
+    /* ---------- TABS (sticky, exactly below header) ---------- */
     .tabs {
       display: flex;
       gap: 8px;
@@ -204,8 +206,8 @@
       border-radius: 40px;
       padding: 6px;
       position: sticky;
-      top: 88px;               /* snug below header */
-      z-index: 90;             /* above content, below header */
+      top: var(--header-height);      /* right below header */
+      z-index: 90;
       border: 1px solid rgba(255,255,255,0.1);
     }
     .tab-btn {
@@ -376,12 +378,6 @@
       text-align: center;
       outline: none;
     }
-    .kcal-label {
-      font-size: 0.7rem;
-      color: var(--text2);
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
 
     .save-btn {
       background: var(--accent);
@@ -482,7 +478,7 @@
       </div>
     </div>
 
-    <!-- TABS (no drop) -->
+    <!-- TABS (perfectly aligned now) -->
     <div class="tabs">
       <button class="tab-btn active" data-tab="today">💪 Today</button>
       <button class="tab-btn" data-tab="trends">📈 Trends</button>
@@ -621,9 +617,9 @@
 
   <script>
     (function() {
-      // ---------- SUPABASE CONFIG ----------
-      const SUPABASE_URL = 'https://uwqzmvseomzyjxbhyrum.supabase.co';         // 👈 replace
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cXptdnNlb216eWp4Ymh5cnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjA2MDksImV4cCI6MjA5NTc5NjYwOX0.G3JFHm8i-DZL3vIOqo9ljEn_QQVDZQEjXCl_lbc7OaE'; // 👈 replace
+      // ---------- SUPABASE CONFIG (replace with your own) ----------
+      const SUPABASE_URL = 'https://uwqzmvseomzyjxbhyrum.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3cXptdnNlb216eWp4Ymh5cnVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMjA2MDksImV4cCI6MjA5NTc5NjYwOX0.G3JFHm8i-DZL3vIOqo9ljEn_QQVDZQEjXCl_lbc7OaE';
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       // ---------- GLOBAL STATE ----------
@@ -721,7 +717,7 @@
         document.getElementById(kcalId).value = kcal || '';
       }
 
-      // Tab switching (no drop)
+      // Tab switching
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -787,29 +783,23 @@
         document.getElementById('daysLoggedDisplay').textContent = new Set(logs.map(l=>l.date)).size;
         const avg = calcAvgKgWeek(); document.getElementById('avgKgWeekDisplay').textContent = avg !== null ? avg.toFixed(1) : '--';
 
-        // Checklist
         document.querySelectorAll('.check-item').forEach(item => {
           if (today?.checklist?.[item.dataset.key]) item.classList.add('checked'); else item.classList.remove('checked');
         });
         const cups = today?.waterCups || 0;
         document.querySelectorAll('.cup').forEach((cup, i) => cup.classList.toggle('filled', i < cups));
         document.getElementById('waterTotal').textContent = cups*500 + ' / 3500 ml';
-
-        // Mood
         document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mood === today?.mood));
         document.getElementById('weightInput').value = today?.weight || '';
 
-        // Meals
         setMealData('breakfastName', 'breakfastKcal', today?.meals?.breakfast?.name, today?.meals?.breakfast?.kcal);
         setMealData('lunchName', 'lunchKcal', today?.meals?.lunch?.name, today?.meals?.lunch?.kcal);
         setMealData('dinnerName', 'dinnerKcal', today?.meals?.dinner?.name, today?.meals?.dinner?.kcal);
 
-        // Exercise
         document.getElementById('badmintonCals').value = today?.exercise?.badminton || '';
         document.getElementById('walkingCals').value = today?.exercise?.walking || '';
         document.getElementById('workoutCals').value = today?.exercise?.workout || '';
 
-        // Energy summary
         const intake = today ? (today.meals?.breakfast?.kcal||0)+(today.meals?.lunch?.kcal||0)+(today.meals?.dinner?.kcal||0) : 0;
         const burn = today ? (today.exercise?.badminton||0)+(today.exercise?.walking||0)+(today.exercise?.workout||0) : 0;
         document.getElementById('intakeDisplay').textContent = intake;
