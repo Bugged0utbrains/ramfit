@@ -9,7 +9,6 @@
   <style>
     :root {
       --header-height: 68px;
-      --tabs-height: 52px;        /* new variable for fixed tabs */
       --bg: #0a0a0b;
       --glass-bg: rgba(28, 28, 30, 0.7);
       --glass-bg2: rgba(44, 44, 46, 0.5);
@@ -33,7 +32,6 @@
       min-height: 100vh;
     }
 
-    /* Login screen (unchanged) */
     .login-screen {
       position: fixed;
       inset: 0;
@@ -123,17 +121,16 @@
     }
     .magic-btn:active { transform: scale(0.96); }
 
-    /* Main app – now accounts for both header and fixed tabs */
+    /* Main app */
     .app {
       max-width: 600px;
       width: 100%;
-      padding-top: calc(var(--header-height) + var(--tabs-height) + 20px);  /* space for header + fixed tabs + a little breathing room */
+      padding-top: var(--header-height);
       display: none;
       padding-bottom: 40px;
     }
     .app.visible { display: block; }
 
-    /* Fixed header – unchanged */
     .header {
       position: fixed;
       top: 0;
@@ -197,26 +194,21 @@
       50% { transform: scale(1.1); opacity: 1; }
     }
 
-    /* Tabs – now FIXED below header (no more gap) */
+    /* Tabs – fixed gap issue */
     .tabs {
-      position: fixed;
-      top: var(--header-height);
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 40px);
-      max-width: 600px;
-      z-index: 100;                    /* below header (110) but above content */
       display: flex;
       gap: 8px;
+      margin-bottom: 24px;
       background: rgba(28,28,30,0.9);
       backdrop-filter: blur(25px);
       -webkit-backdrop-filter: blur(25px);
       border-radius: 40px;
       padding: 6px;
-      margin-top: 0;
+      position: sticky;
+      top: var(--header-height);
+      z-index: 95;
       border: 1px solid rgba(255,255,255,0.15);
-      height: var(--tabs-height);      /* fixed height for the bar */
-      align-items: center;
+      margin-top: 0;   /* no extra margin */
     }
     .tab-btn {
       flex: 1;
@@ -231,10 +223,6 @@
       background: transparent;
       color: var(--text2);
       letter-spacing: 0.5px;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     .tab-btn.active {
       background: #ffffff;
@@ -246,8 +234,6 @@
     .tab-content.active { display: block; }
     @keyframes fadeSlide { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
 
-    /* All other styles (cards, checklist, etc.) remain exactly the same */
-    /* (I'll include them all for completeness, but they are unchanged) */
     .card {
       background: var(--glass-bg);
       backdrop-filter: blur(25px);
@@ -426,6 +412,7 @@
     th { color: var(--text2); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
     td { color: #fff; }
 
+    /* Delete button styling */
     .delete-btn {
       background: transparent;
       border: none;
@@ -487,7 +474,7 @@
   </style>
 </head>
 <body>
-  <!-- LOGIN SCREEN (unchanged) -->
+  <!-- LOGIN SCREEN -->
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-peach">🍑</div>
@@ -498,7 +485,7 @@
     </div>
   </div>
 
-  <!-- MAIN APP (HTML unchanged) -->
+  <!-- MAIN APP -->
   <div class="app" id="mainApp">
     <div class="header">
       <div class="logo">THICC<span class="peach">🍑</span></div>
@@ -515,7 +502,6 @@
 
     <!-- TODAY TAB -->
     <div class="tab-content active" id="todayTab">
-      <!-- ... all today content exactly as before ... -->
       <div class="card">
         <div class="section-title">Current Vibe</div>
         <div class="stats-grid">
@@ -525,6 +511,7 @@
           <div class="stat-item"><div class="stat-value" id="avgKgWeekDisplay">--</div><div class="stat-label">kg/week avg</div></div>
         </div>
       </div>
+
       <div class="card">
         <div class="section-title">Daily Check-in</div>
         <div class="checklist" id="checklistContainer">
@@ -534,6 +521,7 @@
           <div class="check-item" data-key="diet"><div class="check-box"><span class="check-mark">✓</span></div> Diet on Track</div>
           <div class="check-item" data-key="noLateEating"><div class="check-box"><span class="check-mark">✓</span></div> No Late Eating</div>
         </div>
+
         <div style="margin-top:20px;">
           <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
             <span style="font-weight:700;">💧 Hydration</span>
@@ -543,6 +531,7 @@
             <span class="cup">💧</span><span class="cup">💧</span><span class="cup">💧</span><span class="cup">💧</span><span class="cup">💧</span><span class="cup">💧</span><span class="cup">💧</span>
           </div>
         </div>
+
         <div style="margin-top:20px;">
           <div class="input-group">
             <input type="number" id="weightInput" class="weight-input" placeholder="Weight kg" step="0.1" style="width:130px;">
@@ -555,15 +544,29 @@
           </div>
         </div>
       </div>
+
       <!-- Energy summary -->
       <div class="card">
         <div class="section-title">Today's Energy</div>
         <div style="display:flex; justify-content:space-around; text-align:center;">
-          <div><div class="energy-icon">🥗</div><div style="font-size:1.5rem; font-weight:700;" id="intakeDisplay">0</div><div style="color:var(--text2);">kcal in</div></div>
-          <div><div class="energy-icon">🔥</div><div style="font-size:1.5rem; font-weight:700;" id="burnDisplay">0</div><div style="color:var(--text2);">kcal out</div></div>
-          <div><div class="energy-icon">⚖️</div><div style="font-size:1.5rem; font-weight:700;" id="netDisplay">0</div><div style="color:var(--text2);">net</div></div>
+          <div>
+            <div class="energy-icon">🥗</div>
+            <div style="font-size:1.5rem; font-weight:700;" id="intakeDisplay">0</div>
+            <div style="color:var(--text2);">kcal in</div>
+          </div>
+          <div>
+            <div class="energy-icon">🔥</div>
+            <div style="font-size:1.5rem; font-weight:700;" id="burnDisplay">0</div>
+            <div style="color:var(--text2);">kcal out</div>
+          </div>
+          <div>
+            <div class="energy-icon">⚖️</div>
+            <div style="font-size:1.5rem; font-weight:700;" id="netDisplay">0</div>
+            <div style="color:var(--text2);">net</div>
+          </div>
         </div>
       </div>
+
       <!-- Calories Card -->
       <div class="card">
         <div class="section-title">Calories</div>
@@ -579,16 +582,27 @@
           <input type="text" id="dinnerName" placeholder="Dinner food">
           <input type="number" id="dinnerKcal" placeholder="kcal" step="1">
         </div>
+
         <div class="exercise-row">
-          <div class="exercise-col"><label>🏸 Shuttle</label><input type="number" id="badmintonCals" class="weight-input" placeholder="kcal"></div>
-          <div class="exercise-col"><label>🚶 Walking</label><input type="number" id="walkingCals" class="weight-input" placeholder="kcal"></div>
-          <div class="exercise-col"><label>🏋️ Workout</label><input type="number" id="workoutCals" class="weight-input" placeholder="kcal"></div>
+          <div class="exercise-col">
+            <label>🏸 Shuttle</label>
+            <input type="number" id="badmintonCals" class="weight-input" placeholder="kcal">
+          </div>
+          <div class="exercise-col">
+            <label>🚶 Walking</label>
+            <input type="number" id="walkingCals" class="weight-input" placeholder="kcal">
+          </div>
+          <div class="exercise-col">
+            <label>🏋️ Workout</label>
+            <input type="number" id="workoutCals" class="weight-input" placeholder="kcal">
+          </div>
         </div>
+
         <button class="save-btn" id="saveBtn">Cook</button>
       </div>
     </div>
 
-    <!-- TRENDS TAB (unchanged) -->
+    <!-- TRENDS TAB -->
     <div class="tab-content" id="trendsTab">
       <div class="card">
         <div class="section-title">⚖️ Weight</div>
@@ -598,7 +612,7 @@
       </div>
     </div>
 
-    <!-- HISTORY TAB (unchanged) -->
+    <!-- HISTORY TAB -->
     <div class="tab-content" id="historyTab">
       <div class="card">
         <div class="section-title">Your Logs</div>
@@ -614,7 +628,6 @@
     <div class="toast" id="toast">Thiccness saved! 🍑</div>
   </div>
 
-  <!-- JavaScript (exactly the same as before) -->
   <script>
     (function() {
       const SUPABASE_URL = 'https://uwqzmvseomzyjxbhyrum.supabase.co';
@@ -648,20 +661,31 @@
       function getDraftKey() {
         return 'thiccDraft:' + todayStr;
       }
+
       function saveDraftToStorage(state) {
         try { localStorage.setItem(getDraftKey(), JSON.stringify(state)); } catch(e) {}
       }
+
       function loadDraftFromStorage() {
-        try { const raw = localStorage.getItem(getDraftKey()); return raw ? JSON.parse(raw) : null; } catch(e) { return null; }
+        try {
+          const raw = localStorage.getItem(getDraftKey());
+          return raw ? JSON.parse(raw) : null;
+        } catch(e) { return null; }
       }
-      function clearDraftStorage() { try { localStorage.removeItem(getDraftKey()); } catch(e) {} }
+
+      function clearDraftStorage() {
+        try { localStorage.removeItem(getDraftKey()); } catch(e) {}
+      }
 
       function collectTodayState() {
         const checklist = {};
-        document.querySelectorAll('.check-item').forEach(item => { checklist[item.dataset.key] = item.classList.contains('checked'); });
+        document.querySelectorAll('.check-item').forEach(item => {
+          checklist[item.dataset.key] = item.classList.contains('checked');
+        });
         const water = document.querySelectorAll('.cup.filled').length;
         const weight = document.getElementById('weightInput').value;
         const mood = document.querySelector('.mood-btn.active')?.dataset.mood || null;
+
         const meals = {
           breakfast: { name: document.getElementById('breakfastName').value, kcal: document.getElementById('breakfastKcal').value },
           lunch: { name: document.getElementById('lunchName').value, kcal: document.getElementById('lunchKcal').value },
@@ -677,106 +701,235 @@
 
       function applyTodayState(state) {
         if (!state) return;
-        document.querySelectorAll('.check-item').forEach(item => { item.classList.toggle('checked', !!state.checklist?.[item.dataset.key]); });
+        document.querySelectorAll('.check-item').forEach(item => {
+          item.classList.toggle('checked', !!state.checklist?.[item.dataset.key]);
+        });
         const cups = parseInt(state.water,10)||0;
         document.querySelectorAll('.cup').forEach((cup,i)=>cup.classList.toggle('filled', i<cups));
         document.getElementById('waterTotal').textContent = (cups*500)+' / 3500 ml';
+
         document.getElementById('weightInput').value = state.weight || '';
         document.querySelectorAll('.mood-btn').forEach(btn=>btn.classList.toggle('active', btn.dataset.mood===state.mood));
+
         document.getElementById('breakfastName').value = state.meals?.breakfast?.name || '';
         document.getElementById('breakfastKcal').value = state.meals?.breakfast?.kcal || '';
         document.getElementById('lunchName').value = state.meals?.lunch?.name || '';
         document.getElementById('lunchKcal').value = state.meals?.lunch?.kcal || '';
         document.getElementById('dinnerName').value = state.meals?.dinner?.name || '';
         document.getElementById('dinnerKcal').value = state.meals?.dinner?.kcal || '';
+
         document.getElementById('badmintonCals').value = state.exercise?.badminton || '';
         document.getElementById('walkingCals').value = state.exercise?.walking || '';
         document.getElementById('workoutCals').value = state.exercise?.workout || '';
+
         updateCalorieDisplay();
       }
 
       function updateCalorieDisplay() {
-        const intake = (parseInt(document.getElementById('breakfastKcal').value)||0)+(parseInt(document.getElementById('lunchKcal').value)||0)+(parseInt(document.getElementById('dinnerKcal').value)||0);
-        const burn = (parseInt(document.getElementById('badmintonCals').value)||0)+(parseInt(document.getElementById('walkingCals').value)||0)+(parseInt(document.getElementById('workoutCals').value)||0);
+        const intake = (parseInt(document.getElementById('breakfastKcal').value)||0) +
+                       (parseInt(document.getElementById('lunchKcal').value)||0) +
+                       (parseInt(document.getElementById('dinnerKcal').value)||0);
+        const burn = (parseInt(document.getElementById('badmintonCals').value)||0) +
+                     (parseInt(document.getElementById('walkingCals').value)||0) +
+                     (parseInt(document.getElementById('workoutCals').value)||0);
         document.getElementById('intakeDisplay').textContent = intake;
         document.getElementById('burnDisplay').textContent = burn;
         document.getElementById('netDisplay').textContent = intake - burn;
       }
 
-      function autoSaveAndRefreshCalories() { persistDraft(); updateCalorieDisplay(); }
-      function persistDraft() { const state = collectTodayState(); todayDraft = state; saveDraftToStorage(state); }
+      function autoSaveAndRefreshCalories() {
+        persistDraft();
+        updateCalorieDisplay();
+      }
+
+      function persistDraft() {
+        const state = collectTodayState();
+        todayDraft = state;
+        saveDraftToStorage(state);
+      }
 
       function restoreDraftOrTodayLog() {
         const stored = loadDraftFromStorage();
-        if (stored) { applyTodayState(stored); return; }
+        if (stored) {
+          todayDraft = stored;
+          applyTodayState(stored);
+          return;
+        }
         const today = logs.find(l => l.date === todayStr);
-        if (today) { applyTodayState({ checklist: today.checklist || {}, water: today.waterCups || 0, weight: today.weight ?? '', mood: today.mood || null, meals: today.meals || {}, exercise: today.exercise || {} }); }
-        else { clearTodayInputs(); }
+        if (today) {
+          applyTodayState({
+            checklist: today.checklist || {},
+            water: today.waterCups || 0,
+            weight: today.weight ?? '',
+            mood: today.mood || null,
+            meals: today.meals || {},
+            exercise: today.exercise || {}
+          });
+        } else {
+          clearTodayInputs();
+        }
       }
 
-      function clearTodayInputs() { applyTodayState({ checklist:{}, water:0, weight:'', mood:null, meals:{breakfast:{},lunch:{},dinner:{}}, exercise:{} }); }
+      function clearTodayInputs() {
+        applyTodayState({
+          checklist:{}, water:0, weight:'', mood:null,
+          meals:{breakfast:{},lunch:{},dinner:{}},
+          exercise:{}
+        });
+      }
 
+      // Wire event listeners
       function wireAutosaveInputs() {
-        const inputs = ['#weightInput','#breakfastName','#breakfastKcal','#lunchName','#lunchKcal','#dinnerName','#dinnerKcal','#badmintonCals','#walkingCals','#workoutCals'];
-        inputs.forEach(sel => { const el = document.querySelector(sel); if(el) { el.addEventListener('input', autoSaveAndRefreshCalories); el.addEventListener('change', autoSaveAndRefreshCalories); } });
-        document.querySelectorAll('.check-item').forEach(item => { item.addEventListener('click', function() { this.classList.toggle('checked'); persistDraft(); }); });
-        document.querySelectorAll('.cup').forEach((cup,i) => { cup.addEventListener('click', () => { const filled = cup.classList.contains('filled'); document.querySelectorAll('.cup').forEach((c,j) => { if(!filled && j<=i) c.classList.add('filled'); if(filled && j>=i) c.classList.remove('filled'); }); document.getElementById('waterTotal').textContent = (document.querySelectorAll('.cup.filled').length*500)+' / 3500 ml'; persistDraft(); }); });
-        document.querySelectorAll('.mood-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); persistDraft(); }); });
+        const inputs = ['#weightInput','#breakfastName','#breakfastKcal','#lunchName','#lunchKcal',
+                        '#dinnerName','#dinnerKcal','#badmintonCals','#walkingCals','#workoutCals'];
+        inputs.forEach(sel => {
+          const el = document.querySelector(sel);
+          if(el) {
+            el.addEventListener('input', autoSaveAndRefreshCalories);
+            el.addEventListener('change', autoSaveAndRefreshCalories);
+          }
+        });
+
+        // Checklist toggling (fixed)
+        document.querySelectorAll('.check-item').forEach(item => {
+          item.addEventListener('click', function(e) {
+            this.classList.toggle('checked');
+            persistDraft();
+          });
+        });
+
+        // Water cups
+        document.querySelectorAll('.cup').forEach((cup,i) => {
+          cup.addEventListener('click', () => {
+            const filled = cup.classList.contains('filled');
+            document.querySelectorAll('.cup').forEach((c,j) => {
+              if(!filled && j<=i) c.classList.add('filled');
+              if(filled && j>=i) c.classList.remove('filled');
+            });
+            const total = document.querySelectorAll('.cup.filled').length;
+            document.getElementById('waterTotal').textContent = (total*500)+' / 3500 ml';
+            persistDraft();
+          });
+        });
+
+        // Mood selector
+        document.querySelectorAll('.mood-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            persistDraft();
+          });
+        });
       }
 
-      // AUTH (unchanged)
+      // ---------- AUTH (fixed magic link) ----------
       async function sendMagicLink() {
         const email = loginEmail.value.trim();
         if(!email){ alert('Enter email'); return; }
         try {
-          const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
+          const { error } = await supabase.auth.signInWithOtp({
+            email,
+            options: { emailRedirectTo: window.location.href }
+          });
           if(error){ alert('Error: '+error.message); console.error(error); }
           else { alert('Magic link sent! Check inbox (and spam).'); }
         } catch(err){ alert('Network error – use live server'); console.error(err); }
       }
       sendMagicLinkBtn.addEventListener('click', sendMagicLink);
 
+      // Immediate session check to prevent login loop
       supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user) { currentUser = session.user; loginScreen.classList.add('hidden'); mainApp.classList.add('visible'); todayStr = getLocalDateStr(); fetchLogs(); }
-        else { loginScreen.classList.remove('hidden'); }
+        if (session?.user) {
+          currentUser = session.user;
+          loginScreen.classList.add('hidden');
+          mainApp.classList.add('visible');
+          todayStr = getLocalDateStr();
+          fetchLogs();
+        } else {
+          loginScreen.classList.remove('hidden');
+        }
       });
 
       supabase.auth.onAuthStateChange((event, session) => {
-        if (session?.user) { currentUser = session.user; loginScreen.classList.add('hidden'); mainApp.classList.add('visible'); todayStr = getLocalDateStr(); fetchLogs(); }
-        else { currentUser = null; loginScreen.classList.remove('hidden'); mainApp.classList.remove('visible'); logs = []; clearTodayInputs(); updateAllUI(); }
+        if (session?.user) {
+          currentUser = session.user;
+          loginScreen.classList.add('hidden');
+          mainApp.classList.add('visible');
+          todayStr = getLocalDateStr();
+          fetchLogs();
+        } else {
+          currentUser = null;
+          loginScreen.classList.remove('hidden');
+          mainApp.classList.remove('visible');
+          logs = [];
+          clearTodayInputs();
+          updateAllUI();
+        }
       });
 
+      // ---------- DATA FETCHING ----------
       async function fetchLogs() {
         if(!currentUser) return;
-        const { data, error } = await supabase.from('logs').select('*').eq('user_id', currentUser.id).order('date', { ascending: false });
-        if(!error) {
+        const { data, error } = await supabase
+          .from('logs')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('date', { ascending: false });
+        if(!error){
           logs = data || [];
           const storedDraft = loadDraftFromStorage();
-          if(storedDraft) { applyTodayState(storedDraft); }
-          else { const today = logs.find(l=>l.date===todayStr); if(today){ applyTodayState({ checklist: today.checklist || {}, water: today.waterCups || 0, weight: today.weight ?? '', mood: today.mood || null, meals: today.meals || {}, exercise: today.exercise || {} }); } else { clearTodayInputs(); } }
+          if(storedDraft){
+            applyTodayState(storedDraft);
+          } else {
+            const today = logs.find(l=>l.date===todayStr);
+            if(today){
+              applyTodayState({
+                checklist: today.checklist || {},
+                water: today.waterCups || 0,
+                weight: today.weight ?? '',
+                mood: today.mood || null,
+                meals: today.meals || {},
+                exercise: today.exercise || {}
+              });
+            } else { clearTodayInputs(); }
+          }
           updateAllUI();
         } else { console.error('Fetch error', error); }
       }
 
+      // ---------- DELETE LOG ----------
       async function deleteLog(dateToDelete) {
         if (!currentUser) return;
-        const { error } = await supabase.from('logs').delete().eq('user_id', currentUser.id).eq('date', dateToDelete);
-        if (!error) { fetchLogs(); } else { alert('Failed to delete log.'); console.error(error); }
+        const { error } = await supabase
+          .from('logs')
+          .delete()
+          .eq('user_id', currentUser.id)
+          .eq('date', dateToDelete);
+        if (!error) {
+          fetchLogs();  // refresh everything
+        } else {
+          alert('Failed to delete log.');
+          console.error(error);
+        }
       }
 
+      // ---------- TAB SWITCHING ----------
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const cur = document.querySelector('.tab-btn.active');
           if(cur && cur.dataset.tab==='today') persistDraft();
+
           document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
           btn.classList.add('active');
           document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
           document.getElementById(btn.dataset.tab+'Tab').classList.add('active');
+
           if(btn.dataset.tab==='today'){ restoreDraftOrTodayLog(); }
           if(btn.dataset.tab==='trends'){ updateCharts(); }
         });
       });
 
+      // ---------- SAVING ----------
       function saveEntry() {
         if(!currentUser){ alert('Sign in first'); return; }
         const checklist={};
@@ -811,6 +964,7 @@
       }
       document.getElementById('saveBtn').addEventListener('click', saveEntry);
 
+      // ---------- UPDATE UI ----------
       function updateAllUI() {
         if(currentUser) streakCountSpan.textContent = calculateStreak();
         const wLogs = logs.filter(l=>l.weight&&!isNaN(l.weight)).sort((a,b)=>b.date.localeCompare(a.date));
@@ -823,9 +977,36 @@
         if(currentUser) updateCharts();
       }
 
-      function calculateStreak() { /* ... unchanged ... */ }
-      function calcAvgKgWeek() { /* ... unchanged ... */ }
-      function formatDateDDMMYY(dateStr) { const parts = dateStr.split('-'); if(parts.length!==3) return dateStr; const yy = parts[0].slice(-2); return `${parts[2]}/${parts[1]}/${yy}`; }
+      function calculateStreak() {
+        const dates = [...new Set(logs.map(l => l.date))].sort().reverse();
+        if (!dates.length) return 0;
+        let streak = 0, cur = new Date(todayStr);
+        if (dates[0] !== todayStr) {
+          cur.setDate(cur.getDate() - 1);
+          if (dates[0] !== getLocalDateStr(cur)) return 0;
+          streak = 1;
+        } else streak = 1;
+        for (let i = 1; i < dates.length; i++) {
+          cur.setDate(cur.getDate() - 1);
+          if (dates[i] === getLocalDateStr(cur)) streak++; else break;
+        }
+        return streak;
+      }
+
+      function calcAvgKgWeek() {
+        const wLogs = logs.filter(l=>l.weight&&!isNaN(l.weight)).sort((a,b)=>a.date.localeCompare(b.date));
+        if(wLogs.length<2) return null;
+        const days = (new Date(wLogs[wLogs.length-1].date) - new Date(wLogs[0].date)) / 86400000;
+        if(days<1) return null;
+        return ((wLogs[0].weight - wLogs[wLogs.length-1].weight) / days) * 7;
+      }
+
+      function formatDateDDMMYY(dateStr) {
+        const parts = dateStr.split('-');
+        if(parts.length!==3) return dateStr;
+        const yy = parts[0].slice(-2);
+        return `${parts[2]}/${parts[1]}/${yy}`;
+      }
 
       function renderHistoryTable() {
         const tbody = document.querySelector('#historyTable tbody');
@@ -835,23 +1016,75 @@
           const calIn = (log.meals?.breakfast?.kcal||0)+(log.meals?.lunch?.kcal||0)+(log.meals?.dinner?.kcal||0);
           const calOut = (log.exercise?.badminton||0)+(log.exercise?.walking||0)+(log.exercise?.workout||0);
           const score = Object.values(log.checklist || {}).filter(v=>v===true).length;
-          row.innerHTML = `<td>${formatDateDDMMYY(log.date)}</td><td>${log.weight??'-'}</td><td>${log.mood||'-'}</td><td>${calIn}</td><td>${calOut}</td><td>${score}/5</td><td><button class="delete-btn" data-date="${log.date}" title="Delete this entry">🗑️</button></td>`;
+          row.innerHTML = `
+            <td>${formatDateDDMMYY(log.date)}</td>
+            <td>${log.weight??'-'}</td>
+            <td>${log.mood||'-'}</td>
+            <td>${calIn}</td>
+            <td>${calOut}</td>
+            <td>${score}/5</td>
+            <td><button class="delete-btn" data-date="${log.date}" title="Delete this entry">🗑️</button></td>
+          `;
         });
+
+        // Attach delete events
         document.querySelectorAll('.delete-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             const date = e.currentTarget.dataset.date;
-            if (confirm(`Delete log for ${formatDateDDMMYY(date)}?`)) { deleteLog(date); }
+            if (confirm(`Delete log for ${formatDateDDMMYY(date)}? This cannot be undone.`)) {
+              deleteLog(date);
+            }
           });
         });
       }
 
-      function updateCharts() { /* ... unchanged ... */ }
+      function getMonthLabel(dateStr) {
+        const d = new Date(dateStr);
+        return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+      }
 
-      // Friend's fixes still here
+      function updateCharts() {
+        const sorted = [...logs].sort((a,b) => a.date.localeCompare(b.date));
+        const monthMap = new Map();
+        sorted.forEach(log => { if(log.weight != null && !isNaN(log.weight)) monthMap.set(getMonthLabel(log.date), log.weight); });
+        const monthLabels = Array.from(monthMap.keys());
+        const monthWeights = Array.from(monthMap.values());
+
+        if(weightMonthChart) weightMonthChart.destroy();
+        weightMonthChart = new Chart(document.getElementById('weightMonthChart'), {
+          type: 'line',
+          data: { labels: monthLabels, datasets: [{ data: monthWeights, borderColor: '#34c759', backgroundColor: 'rgba(52,199,89,0.2)', tension: 0.3, pointBackgroundColor: '#34c759', pointRadius: 5 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { title: { display: true, text: 'Weight (kg)', color: '#aeaeb2' }, ticks: { color: '#aeaeb2', callback: v => v + ' kg' }, grid: { color: 'rgba(255,255,255,0.1)' } }, x: { ticks: { color: '#aeaeb2' }, grid: { color: 'rgba(255,255,255,0.1)' } } } }
+        });
+
+        const intakes = sorted.map(l => (l.meals?.breakfast?.kcal||0)+(l.meals?.lunch?.kcal||0)+(l.meals?.dinner?.kcal||0));
+        const burns = sorted.map(l => (l.exercise?.badminton||0)+(l.exercise?.walking||0)+(l.exercise?.workout||0));
+        const scatterData = sorted.map((l,i) => ({ x: intakes[i], y: burns[i], date: l.date }));
+
+        if(calScatterChart) calScatterChart.destroy();
+        calScatterChart = new Chart(document.getElementById('calScatterChart'), {
+          type: 'scatter',
+          data: { datasets: [{ data: scatterData, backgroundColor: '#ff375f', pointRadius: 6 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `${scatterData[ctx.dataIndex].date}: ${scatterData[ctx.dataIndex].x} kcal in, ${scatterData[ctx.dataIndex].y} kcal out` } } }, scales: { x: { title: { display: true, text: 'Calorie Intake (kcal)', color: '#aeaeb2' }, ticks: { color: '#aeaeb2' }, grid: { color: 'rgba(255,255,255,0.1)' } }, y: { title: { display: true, text: 'Calorie Burn (kcal)', color: '#aeaeb2' }, ticks: { color: '#aeaeb2' }, grid: { color: 'rgba(255,255,255,0.1)' } } } }
+        });
+      }
+
+      // ---------- FRIEND'S FIXES (still applied) ----------
       const startupDraft = loadDraftFromStorage();
-      if (startupDraft) { applyTodayState(startupDraft); }
-      setInterval(() => { persistDraft(); }, 1000);
-      document.addEventListener('visibilitychange', () => { if (document.hidden) { persistDraft(); } });
+      if (startupDraft) {
+        applyTodayState(startupDraft);
+      }
+
+      setInterval(() => {
+        persistDraft();
+      }, 1000);
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          persistDraft();
+        }
+      });
+
       window.addEventListener('beforeunload', persistDraft);
 
       wireAutosaveInputs();
